@@ -1,0 +1,11 @@
+node_modules
+.next
+.git
+*.md
+.env.local
+.env*.local
+barberiatest-*.json
+*-service-account*.json
+public/images/providers/*.webp
+public/images/backgrounds/*.webp
+scripts

@@ -1,0 +1,82 @@
+import nodemailer from "nodemailer";
+import { siteConfig } from "@/config/site.config";
+
+function getTransporter() {
+  return nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD,
+    },
+  });
+}
+
+interface BookingEmailData {
+  providerName: string;
+  serviceName: string;
+  date: string;       // "2026-07-15"
+  startTime: string;  // "10:00"
+  endTime: string;    // "10:30"
+  clientName: string;
+  clientEmail: string;
+  clientPhone: string;
+  comments?: string;
+}
+
+export async function sendConfirmationEmail(data: BookingEmailData) {
+  const transporter = getTransporter();
+
+  const formattedDate = new Date(data.date + "T12:00:00").toLocaleDateString(
+    "es-CR",
+    { weekday: "long", year: "numeric", month: "long", day: "numeric" }
+  );
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;max-width:540px;margin:0 auto;color:#1a1a1a">
+      <div style="background:#1a1a1a;padding:24px 32px">
+        <h1 style="color:#c9a227;margin:0;font-size:22px">${siteConfig.business.name}</h1>
+        <p style="color:#fafaf9;margin:4px 0 0;font-size:13px">${siteConfig.business.tagline}</p>
+      </div>
+      <div style="padding:32px">
+        <h2 style="margin:0 0 8px">¡Cita confirmada, ${data.clientName}!</h2>
+        <p style="color:#555;margin:0 0 24px">Aquí está el resumen de tu reserva:</p>
+        <table style="width:100%;border-collapse:collapse">
+          <tr>
+            <td style="padding:10px 0;border-bottom:1px solid #eee;color:#888;width:140px">Barbero</td>
+            <td style="padding:10px 0;border-bottom:1px solid #eee;font-weight:600">${data.providerName}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 0;border-bottom:1px solid #eee;color:#888">Servicio</td>
+            <td style="padding:10px 0;border-bottom:1px solid #eee;font-weight:600">${data.serviceName}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 0;border-bottom:1px solid #eee;color:#888">Fecha</td>
+            <td style="padding:10px 0;border-bottom:1px solid #eee;font-weight:600">${formattedDate}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 0;border-bottom:1px solid #eee;color:#888">Hora</td>
+            <td style="padding:10px 0;border-bottom:1px solid #eee;font-weight:600">${data.startTime} – ${data.endTime}</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 0;color:#888">Dirección</td>
+            <td style="padding:10px 0;font-weight:600">${siteConfig.location.address}</td>
+          </tr>
+        </table>
+        ${data.comments ? `<p style="margin:24px 0 0;padding:16px;background:#f9f4ec;border-radius:8px;font-style:italic">"${data.comments}"</p>` : ""}
+        <p style="margin:32px 0 0;font-size:13px;color:#888">
+          Si necesitas cambiar o cancelar tu cita, contáctanos al
+          <a href="tel:${siteConfig.contact.phone}" style="color:#c9a227">${siteConfig.contact.phone}</a>.
+        </p>
+      </div>
+    </div>
+  `;
+
+  await transporter.sendMail({
+    from: `"${siteConfig.business.name}" <${process.env.GMAIL_USER}>`,
+    to: data.clientEmail,
+    subject: `✅ Cita confirmada — ${data.serviceName} el ${formattedDate}`,
+    html,
+  });
+}
