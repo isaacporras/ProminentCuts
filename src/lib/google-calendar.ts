@@ -78,7 +78,13 @@ export async function getMonthAvailability(
     },
   });
 
-  const busyRaw = freebusyRes.data.calendars?.[calendarId]?.busy ?? [];
+  const calendarData = freebusyRes.data.calendars?.[calendarId];
+  const calendarErrors = calendarData?.errors;
+  if (calendarErrors && calendarErrors.length > 0) {
+    throw new Error(`Calendar not accessible: ${calendarErrors.map((e) => e.reason).join(", ")}`);
+  }
+
+  const busyRaw = calendarData?.busy ?? [];
   const busyIntervals = busyRaw
     .filter((b) => b.start && b.end)
     .map((b) => ({ start: parseISO(b.start!), end: parseISO(b.end!) }));
