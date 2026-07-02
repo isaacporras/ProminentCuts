@@ -57,7 +57,7 @@ export interface AppointmentsInfo {
   intro: string;
   schedule: ScheduleEntry[];
   workingHours: WorkingHoursConfig;
-  /** Zona horaria IANA del negocio (ej. "America/Costa_Rica"). Crítico para calcular slots correctamente en el servidor. */
+  /** IANA timezone of the business (e.g. "America/Costa_Rica"). Critical for correct slot calculation when the server runs in UTC. */
   timezone: string;
   ctaType: "whatsapp" | "phone" | "email";
   ctaValue: string;
@@ -89,7 +89,7 @@ export interface ProviderItem {
   bio: string;
   photoUrl: string;
   googleCalendarId?: string;
-  /** Horario propio del barbero. Si no se define, usa appointments.workingHours. */
+  /** Provider-specific schedule. Falls back to appointments.workingHours if not set. */
   workingHours?: WorkingHoursConfig;
   socials?: SocialLink[];
 }
@@ -109,9 +109,8 @@ export interface ThemeConfig {
 }
 
 /**
- * Fondo configurable de una sección: imagen, color plano, o ninguno.
- * Si se definen ambos, `color` se aplica como tinte semitransparente
- * sobre `image`. Debe ser legible contra el texto de esa sección.
+ * Configurable background for a section: image, flat color, or none.
+ * When both are set, `color` is applied as a semi-transparent tint over `image`.
  */
 export interface SectionBackground {
   image?: string;

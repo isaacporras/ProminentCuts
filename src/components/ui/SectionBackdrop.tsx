@@ -3,11 +3,11 @@ import type { SectionBackground } from "@/types/site-config";
 
 interface SectionBackdropProps {
   background?: SectionBackground;
-  /** Tinte usado sobre la imagen cuando `background.color` no está definido. */
+  /** Overlay color used when `background.color` is not defined. */
   defaultOverlayColor?: string;
-  /** Opacidad del tinte sobre la imagen (0-1). */
+  /** Overlay opacity over the image (0-1). */
   overlayOpacity?: number;
-  /** Marca la imagen como prioritaria (usar solo en la sección visible al cargar, ej. Hero). */
+  /** Mark image as priority (use only for the above-the-fold section, e.g. Hero). */
   priority?: boolean;
 }
 

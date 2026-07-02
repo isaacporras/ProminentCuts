@@ -1,8 +1,9 @@
 import type { SiteConfig } from "@/types/site-config";
 
 /**
- * Único archivo a editar para reusar este sitio con otro rubro.
- * Los componentes nunca hardcodean "Barbero": todo el texto viene de aquí.
+ * Single file to edit when reusing this site for a different business.
+ * Components never hardcode business-specific text — everything comes from here.
+ * Images → public/brand/ | Environment variables → .env.local (see .env.example)
  */
 export const siteConfig: SiteConfig = {
   business: {
@@ -69,8 +70,8 @@ export const siteConfig: SiteConfig = {
       { day: "Sábado", hours: "10:00 - 18:00" },
       { day: "Domingo", hours: "Cerrado" },
     ],
-    // Horarios legibles por la máquina para calcular slots disponibles.
-    // null = día cerrado. Debe coincidir con `schedule` de arriba.
+    // Machine-readable hours for slot calculation.
+    // null = closed. Must match the human-readable `schedule` above.
     workingHours: {
       monday:    { start: "10:00", end: "20:00" },
       tuesday:   { start: "10:00", end: "20:00" },
@@ -80,8 +81,7 @@ export const siteConfig: SiteConfig = {
       saturday:  { start: "10:00", end: "18:00" },
       sunday:    null,
     },
-    // Zona horaria IANA del negocio — crítico para que los slots
-    // coincidan con la hora local aunque el servidor esté en UTC.
+    // IANA timezone — critical so slots match local time even when the server runs in UTC.
     timezone: "America/Costa_Rica",
     ctaType: "whatsapp",
     ctaValue: "+506 87931306",
@@ -105,7 +105,7 @@ export const siteConfig: SiteConfig = {
       name: "Kevin Figueroa",
       role: "Barbero senior",
       bio: "Más de 12 años de experiencia en cortes clásicos y urbanos.",
-      photoUrl: "/images/providers/kevin-figueroa.webp",
+      photoUrl: "/brand/providers/kevin-figueroa.webp",
       googleCalendarId: "imanoisaac@gmail.com",
       workingHours: {
         monday:    null,
@@ -125,9 +125,9 @@ export const siteConfig: SiteConfig = {
       name: "Leonardo Carcache",
       role: "Barbero senior",
       bio: "Más de 10 años de experiencia en cortes modernos y diseño de barba.",
-      photoUrl: "/images/providers/leonardo-carcache.webp",
+      photoUrl: "/brand/providers/leonardo-carcache.webp",
       googleCalendarId: "leonardo@gmail.com",
-      // Horario propio: trabaja martes a sábado, con diferente cierre el sábado
+      // Custom schedule: works Tuesday–Saturday
       workingHours: {
         monday:    null,
         tuesday:   { start: "10:00", end: "20:00" },
@@ -147,8 +147,8 @@ export const siteConfig: SiteConfig = {
       name: "Barbero 3",
       role: "Barbero senior",
       bio: "Más de 10 años de experiencia en cortes modernos y diseño de barba.",
-      photoUrl: "/images/providers/barbero-3.webp",
-      // googleCalendarId no definido → no aparece en el wizard de citas
+      photoUrl: "/brand/providers/barbero-3.webp",
+      // No googleCalendarId → not bookable online
       socials: [
         { platform: "instagram", url: "https://instagram.com" },
         { platform: "facebook", url: "https://facebook.com" },
@@ -175,7 +175,7 @@ export const siteConfig: SiteConfig = {
   },
 
   sectionBackgrounds: {
-    hero: { image: "/images/backgrounds/hero.webp" },
+    hero: { image: "/brand/backgrounds/hero.webp" },
     appointments: { color: "#f3e9d8" },
   },
 };

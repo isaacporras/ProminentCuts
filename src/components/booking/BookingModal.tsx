@@ -8,8 +8,8 @@ import { BookingWizard } from "./BookingWizard";
 export function BookingModal() {
   const [isOpen, setIsOpen] = useState(false);
 
-  // El elemento del portal se crea en el inicializador lazy (client-only).
-  // Evita llamar setState dentro de un effect.
+  // Portal element is created in the lazy initializer (client-only).
+  // Avoids calling setState inside an effect.
   const [portalEl] = useState<HTMLDivElement | null>(() => {
     if (typeof document === "undefined") return null;
     const el = document.createElement("div");
@@ -17,7 +17,7 @@ export function BookingModal() {
     return el;
   });
 
-  // Solo limpieza al desmontar — no llama setState
+  // Cleanup only on unmount — does not call setState
   useEffect(() => {
     return () => { if (portalEl) document.body.removeChild(portalEl); };
   }, [portalEl]);

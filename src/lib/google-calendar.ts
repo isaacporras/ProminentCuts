@@ -4,7 +4,7 @@ import { fromZonedTime, formatInTimeZone } from "date-fns-tz";
 import type { WorkingHoursConfig, DaySchedule } from "@/types/site-config";
 import type { MonthAvailability, DayAvailability, TimeSlot } from "@/types/booking";
 
-// Los slots siempre se ofrecen cada 30 minutos mínimo.
+// Slots are always offered every 30 minutes at minimum.
 const SLOT_STEP = 30;
 
 function getCalendarAuth() {
@@ -16,13 +16,13 @@ function getCalendarAuth() {
 }
 
 function computeDaySlots(
-  dateStr: string, // "2026-07-15" — fecha en la zona horaria del negocio
+  dateStr: string, // "2026-07-15" — date in the business timezone
   daySchedule: DaySchedule,
   busyIntervals: { start: Date; end: Date }[],
   durationMinutes: number,
   tz: string
 ): DayAvailability {
-  // Construye los límites como UTC real a partir de la hora local del negocio
+  // Build UTC boundaries from the business local time
   const workStart = fromZonedTime(`${dateStr}T${daySchedule.start}:00`, tz);
   const workEnd   = fromZonedTime(`${dateStr}T${daySchedule.end}:00`, tz);
 
@@ -61,11 +61,11 @@ export async function getMonthAvailability(
   const calendar = google.calendar({ version: "v3", auth });
 
   const mm = String(month).padStart(2, "0");
-  // Cantidad de días del mes (Date toma mes 0-indexed; pasando day=0 del mes siguiente da el último día)
+  // Days in month: Date takes 0-indexed month; passing day=0 of the next month returns the last day
   const daysInMonth = new Date(year, month, 0).getDate();
   const lastDateStr = `${year}-${mm}-${String(daysInMonth).padStart(2, "0")}`;
 
-  // Rango de consulta: inicio y fin del mes en hora local del negocio → UTC
+  // Query range: start and end of the month in business local time → UTC
   const queryStart = fromZonedTime(`${year}-${mm}-01T00:00:00`, tz);
   const queryEnd   = fromZonedTime(`${lastDateStr}T23:59:59`, tz);
 
@@ -88,8 +88,7 @@ export async function getMonthAvailability(
   for (let d = 1; d <= daysInMonth; d++) {
     const dateStr = `${year}-${mm}-${String(d).padStart(2, "0")}`;
 
-    // Obtiene el día de la semana usando mediodía en la zona horaria del negocio
-    // (mediodía evita problemas con cambio de horario de verano)
+    // Detect weekday using noon in the business timezone to avoid DST edge cases
     const noonUTC = fromZonedTime(`${dateStr}T12:00:00`, tz);
     const weekdayName = formatInTimeZone(noonUTC, tz, "EEEE").toLowerCase() as keyof WorkingHoursConfig;
     const schedule = workingHours[weekdayName];
@@ -99,7 +98,7 @@ export async function getMonthAvailability(
       continue;
     }
 
-    // Filtra los eventos que caen en este día según la zona horaria del negocio
+    // Filter busy intervals that fall on this day in the business timezone
     const dayBusy = busyIntervals.filter(
       (b) => formatInTimeZone(b.start, tz, "yyyy-MM-dd") === dateStr
     );
