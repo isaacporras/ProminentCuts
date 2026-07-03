@@ -15,7 +15,8 @@ function getCalendarAuth() {
   });
 }
 
-function computeDaySlots(
+// Exported for unit testing only.
+export function _computeDaySlots(
   dateStr: string, // "2026-07-15" — date in the business timezone
   daySchedule: DaySchedule,
   busyIntervals: { start: Date; end: Date }[],
@@ -109,7 +110,7 @@ export async function getMonthAvailability(
       (b) => formatInTimeZone(b.start, tz, "yyyy-MM-dd") === dateStr
     );
 
-    result[dateStr] = computeDaySlots(dateStr, schedule, dayBusy, durationMinutes, tz);
+    result[dateStr] = _computeDaySlots(dateStr, schedule, dayBusy, durationMinutes, tz);
   }
 
   return result;
@@ -124,7 +125,6 @@ export async function createBookingEvent(
     date: string;       // "2026-07-15"
     startTime: string;  // "10:00"
     endTime: string;    // "10:30"
-    attendeeEmail: string;
   }
 ) {
   const auth = getCalendarAuth();
@@ -133,6 +133,8 @@ export async function createBookingEvent(
   const startDateTime = fromZonedTime(`${event.date}T${event.startTime}:00`, tz);
   const endDateTime   = fromZonedTime(`${event.date}T${event.endTime}:00`, tz);
 
+  // No attendees — service accounts require Domain-Wide Delegation to invite.
+  // Client notification is handled separately via Gmail SMTP.
   const res = await calendar.events.insert({
     calendarId,
     requestBody: {
@@ -140,7 +142,6 @@ export async function createBookingEvent(
       description: event.description,
       start: { dateTime: startDateTime.toISOString(), timeZone: tz },
       end:   { dateTime: endDateTime.toISOString(),   timeZone: tz },
-      attendees: [{ email: event.attendeeEmail }],
     },
   });
 

@@ -83,6 +83,7 @@ export const siteConfig: SiteConfig = {
     },
     // IANA timezone — critical so slots match local time even when the server runs in UTC.
     timezone: "America/Costa_Rica",
+    defaultPhoneCountryCode: "+506",
     ctaType: "whatsapp",
     ctaValue: "+506 87931306",
     ctaLabel: "Reservar por WhatsApp",

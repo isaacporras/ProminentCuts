@@ -59,6 +59,8 @@ export interface AppointmentsInfo {
   workingHours: WorkingHoursConfig;
   /** IANA timezone of the business (e.g. "America/Costa_Rica"). Critical for correct slot calculation when the server runs in UTC. */
   timezone: string;
+  /** Default country calling code shown in the phone field (e.g. "+506"). */
+  defaultPhoneCountryCode: string;
   ctaType: "whatsapp" | "phone" | "email";
   ctaValue: string;
   ctaLabel: string;

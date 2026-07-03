@@ -78,7 +78,6 @@ export async function POST(req: NextRequest) {
       date,
       startTime,
       endTime,
-      attendeeEmail: client.email,
     });
     eventId = event.id ?? undefined;
   } catch (err) {

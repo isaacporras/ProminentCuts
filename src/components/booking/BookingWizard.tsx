@@ -80,7 +80,7 @@ export function BookingWizard({ onClose }: BookingWizardProps) {
 
   function isContactValid() {
     const { name, email, phone } = state.form;
-    return name.trim() && email.includes("@") && phone.trim();
+    return name.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && phone.trim();
   }
 
   return (

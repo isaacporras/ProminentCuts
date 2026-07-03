@@ -86,6 +86,7 @@ export function StepSelectDate({ provider, service, selected, onSelect, onAvaila
         <button
           onClick={() => setViewDate((d) => subMonths(d, 1))}
           disabled={isBefore(startOfMonth(subMonths(viewDate, 1)), startOfMonth(today))}
+          aria-label="Previous month"
           className="rounded-full p-1 transition hover:bg-primary/10 disabled:opacity-30"
         >
           <ChevronLeft className="h-5 w-5" />
@@ -95,6 +96,7 @@ export function StepSelectDate({ provider, service, selected, onSelect, onAvaila
         </p>
         <button
           onClick={() => setViewDate((d) => addMonths(d, 1))}
+          aria-label="Next month"
           className="rounded-full p-1 transition hover:bg-primary/10"
         >
           <ChevronRight className="h-5 w-5" />
@@ -146,7 +148,6 @@ export function StepSelectDate({ provider, service, selected, onSelect, onAvaila
                 const isFull = avail ? avail.free === 0 : false;
                 const isDisabled = isPast || isClosed || isFull;
                 const isSelected = selected === dateStr && !isDisabled;
-                const fillPct = avail && avail.total > 0 ? (avail.free / avail.total) * 100 : 0;
 
                 return (
                   <button
@@ -161,16 +162,22 @@ export function StepSelectDate({ provider, service, selected, onSelect, onAvaila
                     )}
                   >
                     <span>{format(day, "d")}</span>
-                    <div className="mt-1 h-1 w-5 overflow-hidden rounded-full bg-primary/10">
-                      {!isDisabled && (
-                        <div
-                          className="h-full rounded-full transition-all"
-                          style={{
-                            width: `${fillPct}%`,
-                            backgroundColor:
-                              fillPct > 60 ? "#4ade80" : fillPct > 20 ? "#facc15" : "#f87171",
-                          }}
-                        />
+                    {/* Segmented bar: each slot is a segment, green = free, dark = busy */}
+                    <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-primary/10">
+                      {!isPast && avail && avail.slots.length > 0 && (
+                        <div className="flex h-full">
+                          {avail.slots.map((slot, i) => (
+                            <div
+                              key={i}
+                              className="h-full flex-1"
+                              style={{
+                                backgroundColor: slot.available
+                                  ? "#4ade80"
+                                  : "rgba(26,26,26,0.45)",
+                              }}
+                            />
+                          ))}
+                        </div>
                       )}
                     </div>
                   </button>
@@ -180,9 +187,9 @@ export function StepSelectDate({ provider, service, selected, onSelect, onAvaila
           )}
 
           <div className="mt-3 flex gap-4 text-[11px] text-text/50">
-            <span className="flex items-center gap-1"><span className="inline-block h-2 w-3 rounded-full bg-[#4ade80]" />Disponible</span>
-            <span className="flex items-center gap-1"><span className="inline-block h-2 w-3 rounded-full bg-[#facc15]" />Poco espacio</span>
-            <span className="flex items-center gap-1"><span className="inline-block h-2 w-3 rounded-full bg-primary/10" />Cerrado/Lleno</span>
+            <span className="flex items-center gap-1"><span className="inline-block h-2 w-3 rounded-sm bg-[#4ade80]" />Libre</span>
+            <span className="flex items-center gap-1"><span className="inline-block h-2 w-3 rounded-sm bg-primary/45" />Ocupado</span>
+            <span className="flex items-center gap-1"><span className="inline-block h-2 w-3 rounded-sm bg-primary/10" />Cerrado</span>
           </div>
         </>
       )}
