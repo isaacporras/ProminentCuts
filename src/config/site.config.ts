@@ -8,7 +8,7 @@ import type { SiteConfig } from "@/types/site-config";
 export const siteConfig: SiteConfig = {
   business: {
     name: "Prominent Cuts",
-    tagline: "Club de Caballeros",
+    tagline: "Barberia",
     description:
       "Una barbería urbana con técnica clásica, atención cercana y detalle en cada corte. Trabajamos cortes tradicionales, degradados, barba y acabados pensados para que salgas fresco y con estilo propio.",
   },
@@ -31,7 +31,7 @@ export const siteConfig: SiteConfig = {
   ],
 
   hero: {
-    headline: "Tu mejor versión empieza con un buen corte",
+    headline: "Prominent Cuts",
     subheadline:
       "Cortes clásicos, afeitado tradicional y diseño de barba en un ambiente cómodo y cercano.",
     ctaLabel: "Reservar una cita",

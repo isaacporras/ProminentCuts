@@ -85,7 +85,7 @@ export function StepSelectDate({ provider, service, selected, onSelect, onAvaila
       <div className="mb-4 flex items-center justify-between">
         <button
           onClick={() => setViewDate((d) => subMonths(d, 1))}
-          disabled={isBefore(startOfMonth(subMonths(viewDate, 1)), today)}
+          disabled={isBefore(startOfMonth(subMonths(viewDate, 1)), startOfMonth(today))}
           className="rounded-full p-1 transition hover:bg-primary/10 disabled:opacity-30"
         >
           <ChevronLeft className="h-5 w-5" />
