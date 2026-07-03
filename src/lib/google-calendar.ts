@@ -50,6 +50,27 @@ export function _computeDaySlots(
   };
 }
 
+// Exported for unit testing only.
+export function _filterPastSlots(
+  dateStr: string,
+  dayResult: DayAvailability,
+  now: Date,
+  tz: string
+): DayAvailability {
+  const updatedSlots = dayResult.slots.map((slot) => {
+    const slotStart = fromZonedTime(`${dateStr}T${slot.start}:00`, tz);
+    const slotEnd   = fromZonedTime(`${dateStr}T${slot.end}:00`, tz);
+    if (slotStart > now) return slot; // future — unchanged
+    if (slotEnd > now)   return { ...slot, available: false, inProgress: true }; // started, not ended
+    return { ...slot, available: false }; // fully past
+  });
+  return {
+    ...dayResult,
+    slots: updatedSlots,
+    free: updatedSlots.filter((s) => s.available).length,
+  };
+}
+
 export async function getMonthAvailability(
   calendarId: string,
   year: number,
@@ -91,6 +112,8 @@ export async function getMonthAvailability(
     .map((b) => ({ start: parseISO(b.start!), end: parseISO(b.end!) }));
 
   const result: MonthAvailability = {};
+  const now = new Date();
+  const todayStr = formatInTimeZone(now, tz, "yyyy-MM-dd");
 
   for (let d = 1; d <= daysInMonth; d++) {
     const dateStr = `${year}-${mm}-${String(d).padStart(2, "0")}`;
@@ -110,7 +133,13 @@ export async function getMonthAvailability(
       (b) => formatInTimeZone(b.start, tz, "yyyy-MM-dd") === dateStr
     );
 
-    result[dateStr] = _computeDaySlots(dateStr, schedule, dayBusy, durationMinutes, tz);
+    let dayResult = _computeDaySlots(dateStr, schedule, dayBusy, durationMinutes, tz);
+
+    if (dateStr === todayStr) {
+      dayResult = _filterPastSlots(dateStr, dayResult, now, tz);
+    }
+
+    result[dateStr] = dayResult;
   }
 
   return result;

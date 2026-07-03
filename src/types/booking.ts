@@ -4,6 +4,8 @@ export interface TimeSlot {
   start: string;     // "10:00"
   end: string;       // "10:30"
   available: boolean;
+  /** True when the slot has started but not yet ended — user should call to check. */
+  inProgress?: boolean;
 }
 
 export interface DayAvailability {

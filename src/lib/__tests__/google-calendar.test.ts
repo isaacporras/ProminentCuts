@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { parseISO } from "date-fns";
-import { _computeDaySlots } from "../google-calendar";
+import { _computeDaySlots, _filterPastSlots } from "../google-calendar";
 
 // Costa Rica is UTC-6 with no DST, so 08:00 local = 14:00 UTC.
 const TZ = "America/Costa_Rica";
@@ -98,6 +98,74 @@ describe("_computeDaySlots", () => {
       const { slots } = _computeDaySlots(DATE, SCHEDULE, busy, 30, TZ);
       const slot = slots.find((s) => s.start === "08:30");
       expect(slot?.available).toBe(false);
+    });
+  });
+});
+
+describe("_filterPastSlots", () => {
+  const TZ = "America/Costa_Rica"; // UTC-6
+  const DATE = "2026-07-15";
+  // Slots: 08:00, 08:30, 09:00, 09:30 (all available initially)
+  const baseResult = _computeDaySlots(
+    DATE,
+    { start: "08:00", end: "10:00" },
+    [],
+    30,
+    TZ
+  );
+
+  it("marks slots whose start has passed as unavailable", () => {
+    // now = 08:45 CR = 14:45 UTC — slots 08:00 and 08:30 have started already
+    const now = parseISO("2026-07-15T14:45:00Z");
+    const { slots } = _filterPastSlots(DATE, baseResult, now, TZ);
+    expect(slots[0]).toMatchObject({ start: "08:00", available: false });
+    expect(slots[1]).toMatchObject({ start: "08:30", available: false });
+    expect(slots[2]).toMatchObject({ start: "09:00", available: true });
+    expect(slots[3]).toMatchObject({ start: "09:30", available: true });
+  });
+
+  it("updates the free count to exclude past slots", () => {
+    const now = parseISO("2026-07-15T14:45:00Z"); // 08:45 CR
+    const { total, free } = _filterPastSlots(DATE, baseResult, now, TZ);
+    expect(total).toBe(4);
+    expect(free).toBe(2);
+  });
+
+  it("marks all slots unavailable when now is after the last slot", () => {
+    const now = parseISO("2026-07-15T16:30:00Z"); // 10:30 CR — after 09:30 slot
+    const { free, slots } = _filterPastSlots(DATE, baseResult, now, TZ);
+    expect(free).toBe(0);
+    expect(slots.every((s) => !s.available)).toBe(true);
+  });
+
+  it("leaves all slots available when now is before the first slot", () => {
+    const now = parseISO("2026-07-15T13:00:00Z"); // 07:00 CR — before 08:00
+    const { free } = _filterPastSlots(DATE, baseResult, now, TZ);
+    expect(free).toBe(4);
+  });
+
+  describe("inProgress detection", () => {
+    it("marks a slot as inProgress when it has started but not yet ended", () => {
+      // now = 08:15 CR = 14:15 UTC — slot 08:00–08:30 has started, not ended
+      const now = parseISO("2026-07-15T14:15:00Z");
+      const { slots } = _filterPastSlots(DATE, baseResult, now, TZ);
+      expect(slots[0]).toMatchObject({ start: "08:00", available: false, inProgress: true });
+    });
+
+    it("does NOT set inProgress on a slot that has fully passed", () => {
+      // now = 08:45 CR = 14:45 UTC — slot 08:00–08:30 has fully passed
+      const now = parseISO("2026-07-15T14:45:00Z");
+      const { slots } = _filterPastSlots(DATE, baseResult, now, TZ);
+      expect(slots[0].inProgress).toBeFalsy();
+    });
+
+    it("does NOT set inProgress on future slots", () => {
+      const now = parseISO("2026-07-15T14:15:00Z"); // 08:15 CR
+      const { slots } = _filterPastSlots(DATE, baseResult, now, TZ);
+      // 08:30, 09:00, 09:30 are all future
+      expect(slots[1].inProgress).toBeFalsy();
+      expect(slots[2].inProgress).toBeFalsy();
+      expect(slots[3].inProgress).toBeFalsy();
     });
   });
 });
