@@ -7,12 +7,12 @@ export function Location() {
   const { location } = siteConfig;
 
   return (
-    <section id="ubicacion" className="relative isolate overflow-hidden bg-bg py-20">
+    <section id="ubicacion" className="relative overflow-hidden bg-bg py-20">
       <SectionBackdrop
         background={siteConfig.sectionBackgrounds?.location}
         defaultOverlayColor={siteConfig.theme.background}
       />
-      <div className="relative z-10 mx-auto max-w-5xl px-6">
+      <div className="relative mx-auto max-w-5xl px-6">
         <SectionHeading title="Ubicación" />
         <div className="grid gap-8 sm:grid-cols-2">
           <div>

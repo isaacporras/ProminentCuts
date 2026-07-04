@@ -126,7 +126,7 @@ export const siteConfig: SiteConfig = {
       name: "Leonardo Carcache",
       role: "Barbero senior",
       bio: "Más de 10 años de experiencia en cortes modernos y diseño de barba.",
-      photoUrl: "/brand/providers/leonardo-carcache.webp",
+      // photoUrl: "/brand/providers/leonardo-carcache.webp", // add the file to enable
       googleCalendarId: "leonardo@gmail.com",
       // Custom schedule: works Tuesday–Saturday
       workingHours: {
@@ -148,7 +148,7 @@ export const siteConfig: SiteConfig = {
       name: "Barbero 3",
       role: "Barbero senior",
       bio: "Más de 10 años de experiencia en cortes modernos y diseño de barba.",
-      photoUrl: "/brand/providers/barbero-3.webp",
+      // photoUrl: "/brand/providers/barbero-3.webp", // add the file to enable
       // No googleCalendarId → not bookable online
       socials: [
         { platform: "instagram", url: "https://instagram.com" },

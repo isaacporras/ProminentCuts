@@ -4,14 +4,14 @@ import { SectionBackdrop } from "@/components/ui/SectionBackdrop";
 
 export function Hero() {
   return (
-    <section id="acerca" className="relative isolate overflow-hidden bg-primary py-24 text-bg">
+    <section id="acerca" className="relative overflow-hidden bg-primary py-24 text-bg">
       <SectionBackdrop
         background={siteConfig.sectionBackgrounds?.hero}
         defaultOverlayColor={siteConfig.theme.primary}
         overlayOpacity={0.45}
         priority
       />
-      <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
+      <div className="relative mx-auto max-w-4xl px-6 text-center">
         <p className="text-sm font-semibold uppercase tracking-wide text-secondary">
           {siteConfig.business.tagline}
         </p>

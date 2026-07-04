@@ -5,12 +5,12 @@ import { SectionBackdrop } from "@/components/ui/SectionBackdrop";
 
 export function Services() {
   return (
-    <section id="servicios" className="relative isolate overflow-hidden bg-bg py-20">
+    <section id="servicios" className="relative overflow-hidden bg-bg py-20">
       <SectionBackdrop
         background={siteConfig.sectionBackgrounds?.services}
         defaultOverlayColor={siteConfig.theme.background}
       />
-      <div className="relative z-10 mx-auto max-w-6xl px-6">
+      <div className="relative mx-auto max-w-6xl px-6">
         <SectionHeading
           title={siteConfig.terminology.servicePlural}
           subtitle="Todo lo que ofrecemos para que te veas y te sientas mejor."

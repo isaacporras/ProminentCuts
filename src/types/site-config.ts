@@ -89,7 +89,7 @@ export interface ProviderItem {
   name: string;
   role: string;
   bio: string;
-  photoUrl: string;
+  photoUrl?: string;
   googleCalendarId?: string;
   /** Provider-specific schedule. Falls back to appointments.workingHours if not set. */
   workingHours?: WorkingHoursConfig;

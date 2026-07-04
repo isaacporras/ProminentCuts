@@ -8,12 +8,12 @@ export function Contact() {
   const { contact } = siteConfig;
 
   return (
-    <section id="contacto" className="relative isolate overflow-hidden bg-bg py-20">
+    <section id="contacto" className="relative overflow-hidden bg-bg py-20">
       <SectionBackdrop
         background={siteConfig.sectionBackgrounds?.contact}
         defaultOverlayColor={siteConfig.theme.background}
       />
-      <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
+      <div className="relative mx-auto max-w-3xl px-6 text-center">
         <SectionHeading title="Contacto" subtitle="¿Tienes dudas? Escríbenos o síguenos en redes." />
         <div className="flex flex-col items-center gap-4">
           <a

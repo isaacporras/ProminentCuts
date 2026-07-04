@@ -7,12 +7,12 @@ export function Appointments() {
   const { appointments } = siteConfig;
 
   return (
-    <section id="citas" className="relative isolate overflow-hidden bg-primary/5 py-20">
+    <section id="citas" className="relative overflow-hidden bg-primary/5 py-20">
       <SectionBackdrop
         background={siteConfig.sectionBackgrounds?.appointments}
         defaultOverlayColor={siteConfig.theme.background}
       />
-      <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
+      <div className="relative mx-auto max-w-3xl px-6 text-center">
         <SectionHeading title="Citas" subtitle={appointments.intro} />
         <div className="mx-auto max-w-sm divide-y divide-primary/10 rounded-xl border border-primary/10 bg-bg text-left">
           {appointments.schedule.map((entry) => (
