@@ -36,7 +36,7 @@ export function StepConfirmation({ state, onConfirm, loading, error }: StepConfi
       <p className="mb-6 text-sm text-text/60">Revisá los detalles antes de confirmar.</p>
 
       <div className="rounded-xl border border-primary/10 bg-bg px-4">
-        <Row label="Barbero" value={provider.name} />
+        <Row label={siteConfig.terminology.providerSingular} value={provider.name} />
         <Row label="Servicio" value={`${service.name}${service.price ? ` — ${service.price}` : ""}`} />
         <Row label="Fecha" value={formattedDate} />
         <Row label="Hora" value={`${slot.start} – ${slot.end}`} />

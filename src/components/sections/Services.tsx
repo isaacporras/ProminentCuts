@@ -13,7 +13,7 @@ export function Services() {
       <div className="relative mx-auto max-w-6xl px-6">
         <SectionHeading
           title={siteConfig.terminology.servicePlural}
-          subtitle="Todo lo que ofrecemos para que te veas y te sientas mejor."
+          subtitle={siteConfig.servicesSubtitle}
         />
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {siteConfig.services.map((service) => (

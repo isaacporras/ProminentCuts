@@ -1,10 +1,11 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { siteConfig } from "@/config/site.config";
 import { BOOKING_STEPS, type BookingStep } from "@/types/booking";
 
 const STEP_LABELS: Record<BookingStep, string> = {
-  provider: "Barbero",
+  provider: siteConfig.terminology.providerSingular,
   service: "Servicio",
   date: "Fecha",
   time: "Hora",

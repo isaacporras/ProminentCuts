@@ -139,9 +139,11 @@ export interface SiteConfig {
   nav: NavItem[];
   hero: HeroContent;
   services: ServiceItem[];
+  servicesSubtitle: string;
   appointments: AppointmentsInfo;
   location: LocationInfo;
   providers: ProviderItem[];
+  providersSubtitle: string;
   contact: ContactInfo;
   theme: ThemeConfig;
   sectionBackgrounds?: SectionBackgrounds;
