@@ -34,17 +34,17 @@ export async function sendConfirmationEmail(data: BookingEmailData) {
   );
 
   const html = `
-    <div style="font-family:Arial,sans-serif;max-width:540px;margin:0 auto;color:#1a1a1a">
-      <div style="background:#1a1a1a;padding:24px 32px">
-        <h1 style="color:#c9a227;margin:0;font-size:22px">${siteConfig.business.name}</h1>
-        <p style="color:#fafaf9;margin:4px 0 0;font-size:13px">${siteConfig.business.tagline}</p>
+    <div style="font-family:Arial,sans-serif;max-width:540px;margin:0 auto;color:${siteConfig.theme.text}">
+      <div style="background:${siteConfig.theme.primary};padding:24px 32px">
+        <h1 style="color:${siteConfig.theme.secondary};margin:0;font-size:22px">${siteConfig.business.name}</h1>
+        <p style="color:${siteConfig.theme.background};margin:4px 0 0;font-size:13px">${siteConfig.business.tagline}</p>
       </div>
       <div style="padding:32px">
         <h2 style="margin:0 0 8px">¡Cita confirmada, ${data.clientName}!</h2>
         <p style="color:#555;margin:0 0 24px">Aquí está el resumen de tu reserva:</p>
         <table style="width:100%;border-collapse:collapse">
           <tr>
-            <td style="padding:10px 0;border-bottom:1px solid #eee;color:#888;width:140px">Barbero</td>
+            <td style="padding:10px 0;border-bottom:1px solid #eee;color:#888;width:140px">${siteConfig.terminology.providerSingular}</td>
             <td style="padding:10px 0;border-bottom:1px solid #eee;font-weight:600">${data.providerName}</td>
           </tr>
           <tr>
@@ -67,7 +67,7 @@ export async function sendConfirmationEmail(data: BookingEmailData) {
         ${data.comments ? `<p style="margin:24px 0 0;padding:16px;background:#f9f4ec;border-radius:8px;font-style:italic">"${data.comments}"</p>` : ""}
         <p style="margin:32px 0 0;font-size:13px;color:#888">
           Si necesitas cambiar o cancelar tu cita, contáctanos al
-          <a href="tel:${siteConfig.contact.phone}" style="color:#c9a227">${siteConfig.contact.phone}</a>.
+          <a href="tel:${siteConfig.contact.phone}" style="color:${siteConfig.theme.secondary}">${siteConfig.contact.phone}</a>.
         </p>
       </div>
     </div>
