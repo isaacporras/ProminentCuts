@@ -25,7 +25,7 @@ export const siteConfig: SiteConfig = {
     { label: "Acerca", href: "#acerca" },
     { label: "Servicios", href: "#servicios" },
     { label: "Citas", href: "#citas" },
-    { label: "Barberos", href: "#barberos" },
+    { label: "Barberos", href: "#equipo" },
     { label: "Ubicación", href: "#ubicacion" },
     { label: "Contacto", href: "#contacto" },
     { label: "Galería", href: "#galeria" }
@@ -55,6 +55,7 @@ export const siteConfig: SiteConfig = {
       durationMinutes: 45,
     },
   ],
+  servicesSubtitle: "Todo lo que ofrecemos para que te veas y te sientas mejor.",
 
   appointments: {
     intro:
@@ -150,6 +151,7 @@ export const siteConfig: SiteConfig = {
       ],
     },
   ],
+  providersSubtitle: "Conoce al equipo que se encargará de tu estilo.",
 
   contact: {
     phone: "+506 87931306",

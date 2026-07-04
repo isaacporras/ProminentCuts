@@ -15,7 +15,9 @@ export function StepSelectProvider({ selected, onSelect }: StepSelectProviderPro
 
   return (
     <div>
-      <h2 className="mb-1 text-xl font-bold text-primary">Elige tu barbero</h2>
+      <h2 className="mb-1 text-xl font-bold text-primary">
+        Elige tu {siteConfig.terminology.providerSingular.toLowerCase()}
+      </h2>
       <p className="mb-6 text-sm text-text/60">¿Con quién te gustaría reservar?</p>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {bookableProviders.map((provider) => {

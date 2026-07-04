@@ -3,6 +3,7 @@
 import { CheckCircle } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
+import { siteConfig } from "@/config/site.config";
 import type { BookingState } from "@/types/booking";
 
 interface StepSuccessProps {
@@ -26,7 +27,7 @@ export function StepSuccess({ state, onClose }: StepSuccessProps) {
 
       <div className="mb-8 w-full max-w-sm rounded-xl border border-primary/10 bg-bg px-4 py-2 text-left text-sm">
         <div className="border-b border-primary/10 py-2.5">
-          <span className="text-text/50">Barbero</span>
+          <span className="text-text/50">{siteConfig.terminology.providerSingular}</span>
           <p className="font-semibold">{provider.name}</p>
         </div>
         <div className="border-b border-primary/10 py-2.5">
