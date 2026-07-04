@@ -51,13 +51,13 @@ Esto extrae `client_email` y `private_key` del JSON y los escribe en `.env.local
 
 ### 2. Configurar el contenido del sitio
 
-Todo el contenido vive en **`config/site.config.ts`**: nombre del negocio, servicios, barberos, horarios, redes sociales, colores, y fondos de sección.
+Todo el contenido vive en **`src/config/site.config.ts`**: nombre del negocio, servicios, barberos, horarios, redes sociales, colores, y fondos de sección.
 
 Para convertir el sitio en otro rubro (ej. nutricionistas) solo se edita ese archivo — los componentes nunca tienen texto hardcodeado.
 
 #### Agregar un barbero al sistema de reservas
 
-En `config/site.config.ts`, cada barbero necesita el campo `googleCalendarId`:
+En `src/config/site.config.ts`, cada barbero necesita el campo `googleCalendarId`:
 
 ```ts
 providers: [
@@ -81,17 +81,17 @@ Los barberos sin `googleCalendarId` no aparecen en el wizard de reservas.
 
 ### 3. Imágenes
 
-Coloca las imágenes en `public/images/`:
+Coloca las imágenes en `public/brand/`:
 
 ```
 public/
-├── images/
-│   ├── backgrounds/
-│   │   └── hero.webp          ← fondo del hero
-│   └── providers/
-│       ├── kevin-figueroa.webp
-│       ├── leonardo-carcache.webp
-│       └── barbero-3.webp
+└── brand/
+    ├── backgrounds/
+    │   └── hero.webp          ← fondo del hero
+    └── providers/
+        ├── kevin-figueroa.webp
+        ├── leonardo-carcache.webp
+        └── barbero-3.webp
 ```
 
 En el compose de producción estas imágenes se montan como volumen, por lo que puedes cambiarlas **sin reconstruir la imagen Docker**.
@@ -103,7 +103,7 @@ En el compose de producción estas imágenes se montan como volumen, por lo que 
 ### Producción
 
 ```bash
-docker compose up --build
+docker compose -f docker/docker-compose.yml up --build
 ```
 
 Levanta la app en `http://localhost:3000`. Lee `.env.local` automáticamente.
@@ -111,25 +111,25 @@ Levanta la app en `http://localhost:3000`. Lee `.env.local` automáticamente.
 Para correr en background:
 
 ```bash
-docker compose up --build -d
+docker compose -f docker/docker-compose.yml up --build -d
 
 # Ver logs
-docker compose logs -f
+docker compose -f docker/docker-compose.yml logs -f
 
 # Detener
-docker compose down
+docker compose -f docker/docker-compose.yml down
 ```
 
-**Cambiar fotos sin rebuild:** edita los archivos en `public/images/` y reinicia el contenedor:
+**Cambiar fotos sin rebuild:** edita los archivos en `public/brand/` y reinicia el contenedor:
 
 ```bash
-docker compose restart
+docker compose -f docker/docker-compose.yml restart
 ```
 
 ### Desarrollo (hot reload)
 
 ```bash
-docker compose -f docker-compose.dev.yml up
+docker compose -f docker/docker-compose.dev.yml up
 ```
 
 Monta el código fuente directamente en el contenedor. Cualquier cambio en archivos `.tsx`/`.ts`/`.css` se refleja en el navegador sin reiniciar.
@@ -161,36 +161,38 @@ npm start
 ## Estructura del proyecto
 
 ```
-├── app/
-│   ├── api/
-│   │   ├── availability/route.ts   # GET disponibilidad mensual por barbero
-│   │   └── book/route.ts           # POST crear cita + enviar email
-│   ├── layout.tsx
-│   └── page.tsx
-├── components/
-│   ├── booking/                    # Wizard de reservas (7 pasos)
-│   │   ├── BookingModal.tsx
-│   │   ├── BookingWizard.tsx
-│   │   └── steps/
-│   ├── layout/                     # Navbar y Footer
-│   ├── sections/                   # Hero, Servicios, Citas, Ubicación, Barberos, Contacto
-│   └── ui/                         # Componentes reutilizables
-├── config/
-│   └── site.config.ts              # ← ÚNICO archivo a editar para personalizar el sitio
-├── lib/
-│   ├── google-calendar.ts          # Lógica de disponibilidad y creación de eventos
-│   ├── mailer.ts                   # Email de confirmación vía Gmail SMTP
-│   └── utils.ts
-├── types/
-│   ├── booking.ts                  # Tipos del wizard de reservas
-│   └── site-config.ts              # Tipos de configuración del sitio
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   ├── availability/route.ts   # GET disponibilidad mensual por barbero
+│   │   │   └── book/route.ts           # POST crear cita + enviar email
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   ├── components/
+│   │   ├── booking/                    # Wizard de reservas (7 pasos)
+│   │   │   ├── BookingModal.tsx
+│   │   │   ├── BookingWizard.tsx
+│   │   │   └── steps/
+│   │   ├── layout/                     # Navbar y Footer
+│   │   ├── sections/                   # Hero, Servicios, Citas, Ubicación, Barberos, Contacto
+│   │   └── ui/                         # Componentes reutilizables
+│   ├── config/
+│   │   └── site.config.ts              # ← ÚNICO archivo a editar para personalizar el sitio
+│   ├── lib/
+│   │   ├── google-calendar.ts          # Lógica de disponibilidad y creación de eventos
+│   │   ├── mailer.ts                   # Email de confirmación vía Gmail SMTP
+│   │   └── utils.ts
+│   └── types/
+│       ├── booking.ts                  # Tipos del wizard de reservas
+│       └── site-config.ts              # Tipos de configuración del sitio
+├── public/brand/                       # Imágenes (montadas como volumen en Docker)
 ├── scripts/
-│   └── setup-env.mjs               # Genera .env.local desde JSON de service account
-├── public/images/                  # Imágenes (montadas como volumen en Docker)
-├── Dockerfile
-├── docker-compose.yml              # Producción
-├── docker-compose.dev.yml          # Desarrollo
-└── .env.example                    # Plantilla de variables de entorno
+│   └── setup-env.mjs                   # Genera .env.local desde JSON de service account
+├── docker/
+│   ├── Dockerfile
+│   ├── docker-compose.yml              # Producción
+│   └── docker-compose.dev.yml          # Desarrollo
+└── .env.example                        # Plantilla de variables de entorno
 ```
 
 ---
