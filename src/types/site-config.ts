@@ -128,6 +128,11 @@ export interface SectionBackgrounds {
   contact?: SectionBackground;
 }
 
+export interface GalleryConfig {
+  title?: string;
+  subtitle?: string;
+}
+
 export interface SiteConfig {
   business: BusinessInfo;
   terminology: Terminology;
@@ -140,4 +145,5 @@ export interface SiteConfig {
   contact: ContactInfo;
   theme: ThemeConfig;
   sectionBackgrounds?: SectionBackgrounds;
+  gallery?: GalleryConfig;
 }

@@ -2,6 +2,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/sections/Hero";
 import { Services } from "@/components/sections/Services";
+import { Gallery } from "@/components/sections/Gallery";
 import { Appointments } from "@/components/sections/Appointments";
 import { Location } from "@/components/sections/Location";
 import { Providers } from "@/components/sections/Providers";
@@ -14,6 +15,7 @@ export default function Home() {
       <main className="flex-1">
         <Hero />
         <Services />
+        <Gallery />
         <Appointments />
         <Location />
         <Providers />

@@ -28,6 +28,7 @@ export const siteConfig: SiteConfig = {
     { label: "Barberos", href: "#barberos" },
     { label: "Ubicación", href: "#ubicacion" },
     { label: "Contacto", href: "#contacto" },
+    { label: "Galería", href: "#galeria" }
   ],
 
   hero: {
@@ -52,13 +53,6 @@ export const siteConfig: SiteConfig = {
       description: "Combo de corte clásico con perfilado de barba.",
       price: "₡6000",
       durationMinutes: 45,
-    },
-    {
-      id: "perfilado-cejas",
-      name: "Perfilado de Cejas",
-      description: "Perfilado y limpieza de cejas.",
-      price: "₡6.000",
-      durationMinutes: 20,
     },
   ],
 
@@ -178,6 +172,14 @@ export const siteConfig: SiteConfig = {
   sectionBackgrounds: {
     hero: { image: "/brand/backgrounds/hero.webp" },
     appointments: { color: "#f3e9d8" },
+  },
+
+  // Images are auto-discovered from public/brand/gallery/ (sorted by filename).
+  // Drop .webp files there and the section appears automatically.
+  // Remove this block entirely to disable the section.
+  gallery: {
+    title: "Nuestro trabajo",
+    subtitle: "Cortes reales, resultados que hablan por sí solos.",
   },
 };
 
