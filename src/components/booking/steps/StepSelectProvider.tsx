@@ -19,7 +19,7 @@ export function StepSelectProvider({ selected, onSelect }: StepSelectProviderPro
         Elige tu {siteConfig.terminology.providerSingular.toLowerCase()}
       </h2>
       <p className="mb-6 text-sm text-text/60">¿Con quién te gustaría reservar?</p>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="flex flex-wrap justify-center gap-4">
         {bookableProviders.map((provider) => {
           const initials = provider.name
             .split(" ")
@@ -33,18 +33,18 @@ export function StepSelectProvider({ selected, onSelect }: StepSelectProviderPro
               type="button"
               onClick={() => onSelect(provider)}
               className={cn(
-                "flex items-center gap-3 rounded-xl border-2 p-3 text-left transition hover:border-secondary",
+                "flex w-full flex-none items-center gap-4 rounded-xl border-2 p-4 text-left transition hover:border-secondary sm:w-[calc(50%-0.5rem)]",
                 selected?.id === provider.id
                   ? "border-secondary bg-secondary/5"
                   : "border-primary/10 bg-bg"
               )}
             >
-              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-primary/10">
+              <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full bg-primary/10">
                 {provider.photoUrl ? (
                   <Image src={provider.photoUrl} alt={provider.name} fill className="object-cover" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center">
-                    <span className="text-sm font-bold text-primary/40">{initials}</span>
+                    <span className="text-lg font-bold text-primary/40">{initials}</span>
                   </div>
                 )}
               </div>
