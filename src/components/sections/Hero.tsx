@@ -15,7 +15,7 @@ export function Hero() {
         <p className="text-sm font-semibold uppercase tracking-wide text-secondary">
           {siteConfig.business.tagline}
         </p>
-        <h1 className="mt-3 text-4xl font-bold sm:text-5xl">
+        <h1 className="font-heading mt-3 text-4xl font-bold sm:text-5xl">
           {siteConfig.hero.headline}
         </h1>
         <p className="mt-5 text-lg text-bg/80">{siteConfig.hero.subheadline}</p>

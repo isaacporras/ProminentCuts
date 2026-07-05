@@ -102,12 +102,21 @@ export interface ContactInfo {
   socials: SocialLink[];
 }
 
+// Keys map to a fixed set of next/font/google families wired up in layout.tsx.
+// Adding a new option requires importing the font there too.
+export type HeadingFont = "geist" | "cormorant-garamond" | "playfair-display";
+export type BodyFont = "geist" | "lora" | "inter" | "montserrat" | "nunito-sans";
+
 export interface ThemeConfig {
   primary: string;
   secondary: string;
   accent: string;
   background: string;
   text: string;
+  /** Defaults to "geist" if unset. */
+  fontHeading?: HeadingFont;
+  /** Defaults to "geist" if unset. */
+  fontBody?: BodyFont;
 }
 
 /**
