@@ -6,6 +6,8 @@
   --color-accent: #c9a227;
   --color-bg: #fafaf9;
   --color-text: #1a1a1a;
+  --font-heading: ui-serif, serif;
+  --font-body: ui-sans-serif, sans-serif;
 }
 
 @theme inline {
@@ -14,8 +16,10 @@
   --color-accent: var(--color-accent);
   --color-bg: var(--color-bg);
   --color-text: var(--color-text);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-body);
   --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
 }
 
 body {

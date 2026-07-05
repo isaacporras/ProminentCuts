@@ -27,7 +27,7 @@ export function ProviderCard({ provider }: { provider: ProviderItem }) {
         )}
       </div>
       <div className="p-5">
-        <h3 className="text-lg font-semibold text-primary">{provider.name}</h3>
+        <h3 className="font-heading text-lg font-semibold text-primary">{provider.name}</h3>
         <p className="text-sm font-medium text-secondary">{provider.role}</p>
         <p className="mt-2 text-sm text-text/70">{provider.bio}</p>
         {provider.socials && provider.socials.length > 0 && (
