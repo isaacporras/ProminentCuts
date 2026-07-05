@@ -15,9 +15,14 @@ export function Providers() {
           title={siteConfig.terminology.providerPlural}
           subtitle={siteConfig.providersSubtitle}
         />
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="flex flex-wrap justify-center gap-6">
           {siteConfig.providers.map((provider) => (
-            <ProviderCard key={provider.id} provider={provider} />
+            <div
+              key={provider.id}
+              className="w-full flex-none sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]"
+            >
+              <ProviderCard provider={provider} />
+            </div>
           ))}
         </div>
       </div>
