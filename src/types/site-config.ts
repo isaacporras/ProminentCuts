@@ -15,6 +15,7 @@ export interface BusinessInfo {
   name: string;
   tagline: string;
   description: string;
+  /** Used as the browser tab favicon. Falls back to public/favicon.ico when unset. */
   logoUrl?: string;
 }
 
