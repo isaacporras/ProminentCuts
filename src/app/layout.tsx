@@ -89,6 +89,7 @@ const BODY_FONT_VARS: Record<BodyFont, string> = {
 export const metadata: Metadata = {
   title: `${siteConfig.business.name} | ${siteConfig.business.tagline}`,
   description: siteConfig.business.description,
+  icons: { icon: siteConfig.business.logoUrl ?? "/favicon.ico" },
 };
 
 export default function RootLayout({
