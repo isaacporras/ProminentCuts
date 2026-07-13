@@ -91,6 +91,8 @@ export interface ProviderItem {
   role: string;
   bio: string;
   photoUrl?: string | null;
+  /** Where booking notifications are sent. Not necessarily the same inbox as googleCalendarId. */
+  email?: string | null;
   googleCalendarId?: string | null;
   /** Provider-specific schedule. Falls back to appointments.workingHours if not set. */
   workingHours?: WorkingHoursConfig | null;
@@ -148,13 +150,6 @@ export interface SiteConfig {
   terminology: Terminology;
   nav: NavItem[];
   hero: HeroContent;
-  // Providers/services now live in the database and are managed from
-  // /admin, not here. These two stay optional (rather than being removed
-  // outright) purely so an existing business branch that still has the old
-  // hardcoded arrays keeps type-checking — db:migrate reads them once on
-  // first boot to seed the database, then they're safe to delete whenever.
-  providers?: ProviderItem[];
-  services?: ServiceItem[];
   servicesSubtitle: string;
   appointments: AppointmentsInfo;
   location: LocationInfo;

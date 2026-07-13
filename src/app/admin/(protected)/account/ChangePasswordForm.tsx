@@ -2,13 +2,14 @@
 
 import { useActionState } from "react";
 import { changePassword } from "./actions";
-import { inputBase, labelBase, buttonPrimary } from "../../ui";
+import { inputBase, labelBase, buttonPrimary, cardBase, eyebrow } from "../../ui";
 
 export function ChangePasswordForm() {
   const [state, formAction, pending] = useActionState(changePassword, undefined);
 
   return (
-    <form action={formAction} className="flex max-w-sm flex-col gap-4">
+    <form action={formAction} className={`${cardBase} flex max-w-sm flex-col gap-4 p-6`}>
+      <p className={eyebrow}>Seguridad</p>
       <div>
         <label className={labelBase}>Contraseña actual</label>
         <input

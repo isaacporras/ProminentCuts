@@ -1,9 +1,11 @@
 import { ChangePasswordForm } from "./ChangePasswordForm";
+import { eyebrow, pageHeading } from "../../ui";
 
 export default function AdminAccountPage() {
   return (
     <div>
-      <h1 className="mb-6 text-xl font-bold text-primary">Cuenta</h1>
+      <p className={eyebrow}>Panel</p>
+      <h1 className={`${pageHeading} mb-6`}>Cuenta</h1>
       <ChangePasswordForm />
     </div>
   );

@@ -1,10 +1,12 @@
 import { ProviderForm } from "../ProviderForm";
 import { createProvider } from "../actions";
+import { eyebrow, pageHeading } from "../../../ui";
 
 export default function NewProviderPage() {
   return (
     <div>
-      <h1 className="mb-6 text-xl font-bold text-primary">Agregar al equipo</h1>
+      <p className={eyebrow}>Equipo</p>
+      <h1 className={`${pageHeading} mb-6`}>Agregar al equipo</h1>
       <ProviderForm action={createProvider} />
     </div>
   );

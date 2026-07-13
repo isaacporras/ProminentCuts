@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { providers } from "@/db/schema";
 import { requireSession } from "@/lib/auth";
+import { deleteProviderPhoto } from "@/lib/provider-photo";
 import type { SocialLink, SocialPlatform, WorkingHoursConfig } from "@/types/site-config";
 
 const SOCIAL_PLATFORMS: SocialPlatform[] = ["instagram", "tiktok", "facebook", "x", "whatsapp"];
@@ -37,6 +38,7 @@ interface ProviderFormValues {
   role: string;
   bio: string;
   photoUrl: string | null;
+  email: string | null;
   googleCalendarId: string | null;
   socials: SocialLink[];
   workingHours: WorkingHoursConfig | null;
@@ -48,6 +50,7 @@ function valuesFromForm(formData: FormData): ProviderFormValues {
     role: String(formData.get("role") ?? "").trim(),
     bio: String(formData.get("bio") ?? "").trim(),
     photoUrl: String(formData.get("photoUrl") ?? "").trim() || null,
+    email: String(formData.get("email") ?? "").trim() || null,
     googleCalendarId: String(formData.get("googleCalendarId") ?? "").trim() || null,
     socials: socialsFromForm(formData),
     workingHours: workingHoursFromForm(formData),
@@ -71,7 +74,17 @@ export async function updateProvider(id: string, formData: FormData) {
   await requireSession();
   const values = valuesFromForm(formData);
 
+  const previous = db
+    .select({ photoUrl: providers.photoUrl })
+    .from(providers)
+    .where(eq(providers.id, id))
+    .get();
+
   db.update(providers).set(values).where(eq(providers.id, id)).run();
+
+  if (previous && previous.photoUrl !== values.photoUrl) {
+    await deleteProviderPhoto(previous.photoUrl);
+  }
 
   revalidatePath("/admin/providers");
   revalidatePath("/");
@@ -80,7 +93,16 @@ export async function updateProvider(id: string, formData: FormData) {
 
 export async function deleteProvider(id: string) {
   await requireSession();
+
+  const existing = db
+    .select({ photoUrl: providers.photoUrl })
+    .from(providers)
+    .where(eq(providers.id, id))
+    .get();
+
   db.delete(providers).where(eq(providers.id, id)).run();
+  if (existing) await deleteProviderPhoto(existing.photoUrl);
+
   revalidatePath("/admin/providers");
   revalidatePath("/");
 }

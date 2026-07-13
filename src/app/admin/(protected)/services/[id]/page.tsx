@@ -4,6 +4,7 @@ import { db } from "@/db/client";
 import { services } from "@/db/schema";
 import { ServiceForm } from "../ServiceForm";
 import { updateService } from "../actions";
+import { eyebrow, pageHeading } from "../../../ui";
 
 export default async function EditServicePage({
   params,
@@ -16,7 +17,8 @@ export default async function EditServicePage({
 
   return (
     <div>
-      <h1 className="mb-6 text-xl font-bold text-primary">Editar {service.name}</h1>
+      <p className={eyebrow}>Servicios</p>
+      <h1 className={`${pageHeading} mb-6`}>Editar {service.name}</h1>
       <ServiceForm service={service} action={updateService.bind(null, id)} />
     </div>
   );

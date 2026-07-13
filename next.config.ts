@@ -8,6 +8,10 @@ const allowedDevOrigins = process.env.ALLOWED_DEV_ORIGINS
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // sharp ships native (non-JS) binaries. The standalone build's bundler
+  // tracing can drop the shared libraries those binaries dlopen, so it
+  // needs to stay a plain runtime require() instead of being bundled.
+  serverExternalPackages: ["sharp"],
   ...(allowedDevOrigins.length > 0 && { allowedDevOrigins }),
 };
 

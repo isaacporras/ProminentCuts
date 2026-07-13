@@ -14,6 +14,7 @@ export const providers = sqliteTable("providers", {
   role: text("role").notNull(),
   bio: text("bio").notNull(),
   photoUrl: text("photo_url"),
+  email: text("email"),
   googleCalendarId: text("google_calendar_id"),
   socials: text("socials", { mode: "json" }).$type<SocialLink[]>(),
   // Provider-specific schedule override. Null falls back to

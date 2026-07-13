@@ -1,19 +1,18 @@
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { getMonthAvailability, createBookingEvent } from "@/lib/google-calendar";
-import { sendConfirmationEmail } from "@/lib/mailer";
+import { sendConfirmationEmail, sendProviderBookingNotification } from "@/lib/mailer";
 import { siteConfig } from "@/config/site.config";
 import { db } from "@/db/client";
 import { providers } from "@/db/schema";
 import { parseISO, getMonth, getYear } from "date-fns";
 
+function findProviderByCalendarId(calendarId: string) {
+  return db.select().from(providers).where(eq(providers.googleCalendarId, calendarId)).get();
+}
+
 function resolveWorkingHours(calendarId: string) {
-  const provider = db
-    .select({ workingHours: providers.workingHours })
-    .from(providers)
-    .where(eq(providers.googleCalendarId, calendarId))
-    .get();
-  return provider?.workingHours ?? siteConfig.appointments.workingHours;
+  return findProviderByCalendarId(calendarId)?.workingHours ?? siteConfig.appointments.workingHours;
 }
 
 interface BookRequest {
@@ -92,7 +91,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Error creando la cita en el calendario" }, { status: 500 });
   }
 
-  // Send confirmation email (non-blocking failure)
+  // Send confirmation + notification emails (non-blocking failure — the
+  // booking is already on the calendar either way).
   try {
     await sendConfirmationEmail({
       providerName: provider.name,
@@ -106,7 +106,27 @@ export async function POST(req: NextRequest) {
       comments: client.comments,
     });
   } catch (err) {
-    console.error("[book] email failed (non-fatal)", err);
+    console.error("[book] client confirmation email failed (non-fatal)", err);
+  }
+
+  const providerEmail = findProviderByCalendarId(calendarId)?.email;
+  if (providerEmail) {
+    try {
+      await sendProviderBookingNotification({
+        providerEmail,
+        providerName: provider.name,
+        serviceName,
+        date,
+        startTime,
+        endTime,
+        clientName: client.name,
+        clientEmail: client.email,
+        clientPhone: client.phone,
+        comments: client.comments,
+      });
+    } catch (err) {
+      console.error("[book] provider notification email failed (non-fatal)", err);
+    }
   }
 
   return NextResponse.json({ success: true, eventId });

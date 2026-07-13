@@ -4,6 +4,7 @@ import { db } from "@/db/client";
 import { providers } from "@/db/schema";
 import { ProviderForm } from "../ProviderForm";
 import { updateProvider } from "../actions";
+import { eyebrow, pageHeading } from "../../../ui";
 
 export default async function EditProviderPage({
   params,
@@ -16,7 +17,8 @@ export default async function EditProviderPage({
 
   return (
     <div>
-      <h1 className="mb-6 text-xl font-bold text-primary">Editar {provider.name}</h1>
+      <p className={eyebrow}>Equipo</p>
+      <h1 className={`${pageHeading} mb-6`}>Editar {provider.name}</h1>
       <ProviderForm provider={provider} action={updateProvider.bind(null, id)} />
     </div>
   );
