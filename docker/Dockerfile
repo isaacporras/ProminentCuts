@@ -16,6 +16,11 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 # El build lee variables de entorno en tiempo de compilación si son NEXT_PUBLIC_*.
 # Las variables del servidor (Google, Gmail, DB) solo se leen en runtime, no aquí.
+# El paso de type-checking de `next build` puede pedir más heap del que V8
+# calcula solo en un host chico (visto: "Ineffective mark-compacts near heap
+# limit" / OOM en un VPS de 4GB), aunque haya memoria+swap real disponible —
+# se lo subimos a mano en vez de dejar que V8 se autolimite antes de tiempo.
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN npm run build
 # Compila el script de migraciones/seed a un único .js plano (sin tsx/ts-node
 # en la imagen final). better-sqlite3 queda externo: ya lo trae node_modules.
