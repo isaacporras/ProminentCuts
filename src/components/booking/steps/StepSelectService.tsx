@@ -2,16 +2,16 @@
 
 import { Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { siteConfig } from "@/config/site.config";
 import type { ServiceItem } from "@/types/site-config";
 
 interface StepSelectServiceProps {
+  services: ServiceItem[];
   selected: ServiceItem | null;
   onSelect: (service: ServiceItem) => void;
 }
 
-export function StepSelectService({ selected, onSelect }: StepSelectServiceProps) {
-  const bookableServices = siteConfig.services.filter((s) => s.durationMinutes);
+export function StepSelectService({ services, selected, onSelect }: StepSelectServiceProps) {
+  const bookableServices = services.filter((s) => s.durationMinutes);
 
   return (
     <div>

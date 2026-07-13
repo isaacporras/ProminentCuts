@@ -1,9 +1,13 @@
 import { siteConfig } from "@/config/site.config";
+import { db } from "@/db/client";
+import { services as servicesTable } from "@/db/schema";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ServiceCard } from "@/components/ui/ServiceCard";
 import { SectionBackdrop } from "@/components/ui/SectionBackdrop";
 
-export function Services() {
+export async function Services() {
+  const services = db.select().from(servicesTable).all();
+
   return (
     <section id="servicios" className="relative overflow-hidden bg-bg py-20">
       <SectionBackdrop
@@ -15,9 +19,14 @@ export function Services() {
           title={siteConfig.terminology.servicePlural}
           subtitle={siteConfig.servicesSubtitle}
         />
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {siteConfig.services.map((service) => (
-            <ServiceCard key={service.id} service={service} />
+        <div className="flex flex-wrap justify-center gap-6">
+          {services.map((service) => (
+            <div
+              key={service.id}
+              className="w-full flex-none sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]"
+            >
+              <ServiceCard service={service} />
+            </div>
           ))}
         </div>
       </div>

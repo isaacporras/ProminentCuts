@@ -8,6 +8,19 @@ services:
       - "3000:3000"
     env_file:
       - ../.env.local
+    environment:
+      # Debe apuntar dentro de un volumen persistente: si no, cada rebuild
+      # borra la base de datos y las fotos subidas desde /admin (que viven
+      # junto a la DB, en /app/data/uploads/providers — ver
+      # src/lib/provider-photo.ts).
+      - DATABASE_PATH=/app/data/app.db
     volumes:
+      # :ro — solo assets de marca editados a mano en el repo (fondos,
+      # galería, logo). Las fotos de /admin ya no se guardan acá, van al
+      # volumen db-data de abajo, así que esto no necesita ser escribible.
       - ../public/brand:/app/public/brand:ro
+      - db-data:/app/data
     restart: unless-stopped
+
+volumes:
+  db-data:

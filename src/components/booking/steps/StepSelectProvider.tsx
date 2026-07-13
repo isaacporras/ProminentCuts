@@ -6,12 +6,13 @@ import { siteConfig } from "@/config/site.config";
 import type { ProviderItem } from "@/types/site-config";
 
 interface StepSelectProviderProps {
+  providers: ProviderItem[];
   selected: ProviderItem | null;
   onSelect: (provider: ProviderItem) => void;
 }
 
-export function StepSelectProvider({ selected, onSelect }: StepSelectProviderProps) {
-  const bookableProviders = siteConfig.providers.filter((p) => p.googleCalendarId);
+export function StepSelectProvider({ providers, selected, onSelect }: StepSelectProviderProps) {
+  const bookableProviders = providers.filter((p) => p.googleCalendarId);
 
   return (
     <div>
