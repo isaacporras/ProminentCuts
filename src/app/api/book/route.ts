@@ -1,11 +1,18 @@
+import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { getMonthAvailability, createBookingEvent } from "@/lib/google-calendar";
 import { sendConfirmationEmail } from "@/lib/mailer";
 import { siteConfig } from "@/config/site.config";
+import { db } from "@/db/client";
+import { providers } from "@/db/schema";
 import { parseISO, getMonth, getYear } from "date-fns";
 
 function resolveWorkingHours(calendarId: string) {
-  const provider = siteConfig.providers.find((p) => p.googleCalendarId === calendarId);
+  const provider = db
+    .select({ workingHours: providers.workingHours })
+    .from(providers)
+    .where(eq(providers.googleCalendarId, calendarId))
+    .get();
   return provider?.workingHours ?? siteConfig.appointments.workingHours;
 }
 

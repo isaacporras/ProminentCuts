@@ -30,8 +30,8 @@ export interface ServiceItem {
   id: string;
   name: string;
   description: string;
-  price?: string;
-  durationMinutes?: number;
+  price?: string | null;
+  durationMinutes?: number | null;
 }
 
 export interface ScheduleEntry {
@@ -90,11 +90,11 @@ export interface ProviderItem {
   name: string;
   role: string;
   bio: string;
-  photoUrl?: string;
-  googleCalendarId?: string;
+  photoUrl?: string | null;
+  googleCalendarId?: string | null;
   /** Provider-specific schedule. Falls back to appointments.workingHours if not set. */
-  workingHours?: WorkingHoursConfig;
-  socials?: SocialLink[];
+  workingHours?: WorkingHoursConfig | null;
+  socials?: SocialLink[] | null;
 }
 
 export interface ContactInfo {
@@ -148,11 +148,11 @@ export interface SiteConfig {
   terminology: Terminology;
   nav: NavItem[];
   hero: HeroContent;
-  services: ServiceItem[];
+  // Services and providers are no longer part of the static config — they
+  // live in the database and are managed from /admin.
   servicesSubtitle: string;
   appointments: AppointmentsInfo;
   location: LocationInfo;
-  providers: ProviderItem[];
   providersSubtitle: string;
   contact: ContactInfo;
   theme: ThemeConfig;
