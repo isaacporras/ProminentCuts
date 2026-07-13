@@ -150,6 +150,13 @@ export interface SiteConfig {
   terminology: Terminology;
   nav: NavItem[];
   hero: HeroContent;
+  // Legacy: some business branches still hardcode their catalog here from
+  // before providers/services moved to the database (see
+  // src/db/seed-from-config.ts to import them once, then these are safe to
+  // delete). New branches should leave these unset — /admin is the only
+  // way to manage providers/services from here on.
+  providers?: ProviderItem[];
+  services?: ServiceItem[];
   servicesSubtitle: string;
   appointments: AppointmentsInfo;
   location: LocationInfo;
