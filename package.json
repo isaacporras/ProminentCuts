@@ -11,6 +11,7 @@
     "test:run": "vitest run",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate.ts",
+    "db:seed-from-config": "tsx src/db/seed-from-config.ts",
     "db:bundle-migrate": "esbuild src/db/migrate.ts --bundle --platform=node --format=cjs --outfile=docker-dist/migrate.js --external:better-sqlite3"
   },
   "dependencies": {
