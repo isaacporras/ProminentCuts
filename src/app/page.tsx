@@ -8,6 +8,10 @@ import { Location } from "@/components/sections/Location";
 import { Providers } from "@/components/sections/Providers";
 import { Contact } from "@/components/sections/Contact";
 
+// Providers/Services read the database on every request (editable from
+// /admin) — this page can't be statically prerendered at build time.
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   return (
     <>

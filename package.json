@@ -11,7 +11,7 @@
     "test:run": "vitest run",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate.ts",
-    "db:seed-from-config": "tsx src/db/seed-from-config.ts"
+    "db:bundle-migrate": "esbuild src/db/migrate.ts --bundle --platform=node --format=cjs --outfile=docker-dist/migrate.js --external:better-sqlite3"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -42,6 +42,7 @@
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.0.3",
     "drizzle-kit": "^0.31.10",
+    "esbuild": "^0.28.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "jsdom": "^29.1.1",

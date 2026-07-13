@@ -148,8 +148,13 @@ export interface SiteConfig {
   terminology: Terminology;
   nav: NavItem[];
   hero: HeroContent;
-  // Services and providers are no longer part of the static config — they
-  // live in the database and are managed from /admin.
+  // Providers/services now live in the database and are managed from
+  // /admin, not here. These two stay optional (rather than being removed
+  // outright) purely so an existing business branch that still has the old
+  // hardcoded arrays keeps type-checking — db:migrate reads them once on
+  // first boot to seed the database, then they're safe to delete whenever.
+  providers?: ProviderItem[];
+  services?: ServiceItem[];
   servicesSubtitle: string;
   appointments: AppointmentsInfo;
   location: LocationInfo;
