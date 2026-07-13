@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import type { BookingState, BookingStep, MonthAvailability } from "@/types/booking";
 import type { ProviderItem, ServiceItem } from "@/types/site-config";
@@ -34,6 +34,21 @@ export function BookingWizard({ onClose }: BookingWizardProps) {
   const [monthAvailability, setMonthAvailability] = useState<MonthAvailability>({});
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingError, setBookingError] = useState<string | null>(null);
+
+  // Providers/services now live in the database (editable from /admin), so
+  // the wizard fetches them once instead of importing siteConfig directly.
+  const [providers, setProviders] = useState<ProviderItem[] | null>(null);
+  const [services, setServices] = useState<ServiceItem[] | null>(null);
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/providers").then((res) => res.json()),
+      fetch("/api/services").then((res) => res.json()),
+    ]).then(([providersData, servicesData]) => {
+      setProviders(providersData);
+      setServices(servicesData);
+    });
+  }, []);
 
   const currentIndex = BOOKING_STEPS.indexOf(step);
   const canGoBack = currentIndex > 0 && step !== "success";
@@ -100,16 +115,26 @@ export function BookingWizard({ onClose }: BookingWizardProps) {
       {/* Step content */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
         {step === "provider" && (
-          <StepSelectProvider
-            selected={state.provider}
-            onSelect={(p: ProviderItem) => { setState((s) => ({ ...s, provider: p, date: null, slot: null })); advance(); }}
-          />
+          providers ? (
+            <StepSelectProvider
+              providers={providers}
+              selected={state.provider}
+              onSelect={(p: ProviderItem) => { setState((s) => ({ ...s, provider: p, date: null, slot: null })); advance(); }}
+            />
+          ) : (
+            <p className="text-sm text-text/50">Cargando...</p>
+          )
         )}
         {step === "service" && (
-          <StepSelectService
-            selected={state.service}
-            onSelect={(sv: ServiceItem) => { setState((s) => ({ ...s, service: sv, date: null, slot: null })); advance(); }}
-          />
+          services ? (
+            <StepSelectService
+              services={services}
+              selected={state.service}
+              onSelect={(sv: ServiceItem) => { setState((s) => ({ ...s, service: sv, date: null, slot: null })); advance(); }}
+            />
+          ) : (
+            <p className="text-sm text-text/50">Cargando...</p>
+          )
         )}
         {step === "date" && state.provider && state.service && (
           <StepSelectDate

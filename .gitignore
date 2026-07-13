@@ -13,9 +13,17 @@
 # testing
 /coverage
 
+# local sqlite database
+/data
+*.db
+*.db-journal
+
 # next.js
 /.next/
 /out/
+
+# docker build artifact (bundled migration script)
+/docker-dist/
 
 # production
 /build
