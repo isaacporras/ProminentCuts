@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import type { ProviderItem, SocialPlatform } from "@/types/site-config";
+import { DAY_KEYS, DAY_LABELS } from "@/lib/schedule";
 import {
   inputBase,
   labelBase,
@@ -26,16 +27,6 @@ const SOCIAL_FIELDS: { platform: SocialPlatform; label: string }[] = [
   { platform: "facebook", label: "Facebook" },
   { platform: "x", label: "X" },
   { platform: "whatsapp", label: "WhatsApp" },
-];
-
-const DAYS: { key: string; label: string }[] = [
-  { key: "monday", label: "Lunes" },
-  { key: "tuesday", label: "Martes" },
-  { key: "wednesday", label: "Miércoles" },
-  { key: "thursday", label: "Jueves" },
-  { key: "friday", label: "Viernes" },
-  { key: "saturday", label: "Sábado" },
-  { key: "sunday", label: "Domingo" },
 ];
 
 interface ProviderFormProps {
@@ -193,11 +184,11 @@ export function ProviderForm({ provider, action }: ProviderFormProps) {
 
         {hasCustomHours && (
           <div className="mt-4 flex flex-col gap-2">
-            {DAYS.map(({ key, label }) => {
-              const day = provider?.workingHours?.[key as keyof typeof provider.workingHours];
+            {DAY_KEYS.map((key) => {
+              const day = provider?.workingHours?.[key];
               return (
                 <div key={key} className="grid grid-cols-3 items-center gap-2">
-                  <span className="text-sm text-text/70">{label}</span>
+                  <span className="text-sm text-text/70">{DAY_LABELS[key]}</span>
                   <input
                     type="time"
                     name={`${key}_start`}

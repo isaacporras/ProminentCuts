@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Falta el archivo" }, { status: 400 });
   }
 
-  const result = await saveUpload("providers", file);
+  const result = await saveUpload("gallery", file);
   if ("error" in result) {
     return NextResponse.json({ error: result.error }, { status: result.status });
   }

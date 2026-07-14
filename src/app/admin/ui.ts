@@ -19,5 +19,8 @@ export const buttonDanger =
 export const buttonSecondary =
   "inline-flex items-center justify-center rounded-md border border-primary/15 px-4 py-2.5 text-sm font-medium text-primary transition hover:bg-primary/5";
 
+export const buttonIcon =
+  "inline-flex h-7 w-7 items-center justify-center rounded-md border border-primary/15 text-sm text-primary transition hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-30";
+
 export const fileInput =
   "text-sm text-text/60 file:mr-3 file:cursor-pointer file:rounded-md file:border file:border-primary/15 file:bg-bg file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-primary file:transition hover:file:bg-primary/5";

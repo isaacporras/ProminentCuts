@@ -1,5 +1,8 @@
 import nodemailer from "nodemailer";
+import { eq } from "drizzle-orm";
 import { siteConfig } from "@/config/site.config";
+import { db } from "@/db/client";
+import { locations, settings } from "@/db/schema";
 
 function getTransporter() {
   return nodemailer.createTransport({
@@ -38,6 +41,12 @@ export async function sendConfirmationEmail(data: BookingEmailData) {
   const transporter = getTransporter();
 
   const formattedDate = formatBookingDate(data.date);
+  // Primary (first) location and phone — falls back to the static config
+  // seed until a business has set these from /admin.
+  const primaryLocation = db.select().from(locations).orderBy(locations.sortOrder).limit(1).get();
+  const address = primaryLocation?.address ?? siteConfig.location.address;
+  const settingsRow = db.select().from(settings).where(eq(settings.id, "main")).get();
+  const phone = settingsRow?.contactPhone ?? siteConfig.contact.phone;
 
   const html = `
     <div style="font-family:Arial,sans-serif;max-width:540px;margin:0 auto;color:${siteConfig.theme.text}">
@@ -67,13 +76,13 @@ export async function sendConfirmationEmail(data: BookingEmailData) {
           </tr>
           <tr>
             <td style="padding:10px 0;color:#888">Dirección</td>
-            <td style="padding:10px 0;font-weight:600">${siteConfig.location.address}</td>
+            <td style="padding:10px 0;font-weight:600">${address}</td>
           </tr>
         </table>
         ${data.comments ? `<p style="margin:24px 0 0;padding:16px;background:#f9f4ec;border-radius:8px;font-style:italic">"${data.comments}"</p>` : ""}
         <p style="margin:32px 0 0;font-size:13px;color:#888">
           Si necesitas cambiar o cancelar tu cita, contáctanos al
-          <a href="tel:${siteConfig.contact.phone}" style="color:${siteConfig.theme.secondary}">${siteConfig.contact.phone}</a>.
+          <a href="tel:${phone}" style="color:${siteConfig.theme.secondary}">${phone}</a>.
         </p>
       </div>
     </div>

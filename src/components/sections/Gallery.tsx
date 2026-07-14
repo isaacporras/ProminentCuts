@@ -1,26 +1,13 @@
-import fs from "fs";
-import path from "path";
 import { siteConfig } from "@/config/site.config";
+import { db } from "@/db/client";
+import { galleryImages } from "@/db/schema";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { GalleryCarousel } from "@/components/sections/GalleryCarousel";
-
-function readGalleryImages(): string[] {
-  const dir = path.join(process.cwd(), "public", "brand", "gallery");
-  try {
-    return fs
-      .readdirSync(dir)
-      .filter((f) => /\.(webp|jpg|jpeg|png)$/i.test(f))
-      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
-      .map((f) => `/brand/gallery/${f}`);
-  } catch {
-    return [];
-  }
-}
 
 export function Gallery() {
   if (!siteConfig.gallery) return null;
 
-  const images = readGalleryImages();
+  const images = db.select().from(galleryImages).orderBy(galleryImages.sortOrder).all();
   if (!images.length) return null;
 
   const { title = "Galería", subtitle } = siteConfig.gallery;
@@ -29,7 +16,7 @@ export function Gallery() {
     <section id="galeria" className="relative overflow-hidden bg-bg py-20">
       <div className="mx-auto max-w-6xl px-6">
         <SectionHeading title={title} subtitle={subtitle} />
-        <GalleryCarousel images={images} />
+        <GalleryCarousel images={images.map((i) => i.url)} />
       </div>
     </section>
   );
