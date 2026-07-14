@@ -5,5 +5,5 @@ export async function GET(
   { params }: { params: Promise<{ filename: string }> }
 ) {
   const { filename } = await params;
-  return serveUpload("providers", filename);
+  return serveUpload("gallery", filename);
 }

@@ -2,15 +2,16 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { providers } from "@/db/schema";
 import { requireSession } from "@/lib/auth";
 import { deleteProviderPhoto } from "@/lib/provider-photo";
+import { workingHoursFromForm as parseWorkingHours } from "@/lib/schedule";
+import { MAX_PROVIDERS } from "@/lib/limits";
 import type { SocialLink, SocialPlatform, WorkingHoursConfig } from "@/types/site-config";
 
 const SOCIAL_PLATFORMS: SocialPlatform[] = ["instagram", "tiktok", "facebook", "x", "whatsapp"];
-const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const;
 
 function socialsFromForm(formData: FormData): SocialLink[] {
   const socials: SocialLink[] = [];
@@ -21,16 +22,11 @@ function socialsFromForm(formData: FormData): SocialLink[] {
   return socials;
 }
 
-function workingHoursFromForm(formData: FormData): WorkingHoursConfig | null {
+// Providers only store hours when they differ from the business's general
+// schedule — the checkbox gates whether this returns anything at all.
+function customWorkingHoursFromForm(formData: FormData): WorkingHoursConfig | null {
   if (formData.get("customHours") !== "on") return null;
-
-  const workingHours: WorkingHoursConfig = {};
-  for (const day of DAYS) {
-    const start = String(formData.get(`${day}_start`) ?? "").trim();
-    const end = String(formData.get(`${day}_end`) ?? "").trim();
-    workingHours[day] = start && end ? { start, end } : null;
-  }
-  return workingHours;
+  return parseWorkingHours(formData);
 }
 
 interface ProviderFormValues {
@@ -53,12 +49,21 @@ function valuesFromForm(formData: FormData): ProviderFormValues {
     email: String(formData.get("email") ?? "").trim() || null,
     googleCalendarId: String(formData.get("googleCalendarId") ?? "").trim() || null,
     socials: socialsFromForm(formData),
-    workingHours: workingHoursFromForm(formData),
+    workingHours: customWorkingHoursFromForm(formData),
   };
 }
 
 export async function createProvider(formData: FormData) {
   await requireSession();
+
+  // Primary guard is hiding "Agregar" on the list page once at the limit —
+  // this only matters if someone reaches the form another way (old tab,
+  // direct URL) after that.
+  const { count } = db.select({ count: sql<number>`count(*)` }).from(providers).get() ?? { count: 0 };
+  if (count >= MAX_PROVIDERS) {
+    redirect("/admin/providers");
+  }
+
   const values = valuesFromForm(formData);
 
   db.insert(providers)

@@ -3,7 +3,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getMonthAvailability } from "@/lib/google-calendar";
 import { siteConfig } from "@/config/site.config";
 import { db } from "@/db/client";
-import { providers } from "@/db/schema";
+import { providers, settings } from "@/db/schema";
+
+function generalWorkingHours() {
+  const row = db.select({ workingHours: settings.workingHours }).from(settings).where(eq(settings.id, "main")).get();
+  return row?.workingHours ?? siteConfig.appointments.workingHours;
+}
 
 function resolveWorkingHours(calendarId: string) {
   const provider = db
@@ -11,7 +16,7 @@ function resolveWorkingHours(calendarId: string) {
     .from(providers)
     .where(eq(providers.googleCalendarId, calendarId))
     .get();
-  return provider?.workingHours ?? siteConfig.appointments.workingHours;
+  return provider?.workingHours ?? generalWorkingHours();
 }
 
 export async function GET(req: NextRequest) {

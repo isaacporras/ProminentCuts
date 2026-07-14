@@ -4,15 +4,20 @@ import { getMonthAvailability, createBookingEvent } from "@/lib/google-calendar"
 import { sendConfirmationEmail, sendProviderBookingNotification } from "@/lib/mailer";
 import { siteConfig } from "@/config/site.config";
 import { db } from "@/db/client";
-import { providers } from "@/db/schema";
+import { providers, settings } from "@/db/schema";
 import { parseISO, getMonth, getYear } from "date-fns";
 
 function findProviderByCalendarId(calendarId: string) {
   return db.select().from(providers).where(eq(providers.googleCalendarId, calendarId)).get();
 }
 
+function generalWorkingHours() {
+  const row = db.select({ workingHours: settings.workingHours }).from(settings).where(eq(settings.id, "main")).get();
+  return row?.workingHours ?? siteConfig.appointments.workingHours;
+}
+
 function resolveWorkingHours(calendarId: string) {
-  return findProviderByCalendarId(calendarId)?.workingHours ?? siteConfig.appointments.workingHours;
+  return findProviderByCalendarId(calendarId)?.workingHours ?? generalWorkingHours();
 }
 
 interface BookRequest {
