@@ -73,6 +73,12 @@ export interface LocationInfo {
   schedule: ScheduleEntry[];
 }
 
+export interface LocationItem {
+  id: string;
+  address: string;
+  mapEmbedUrl?: string | null;
+}
+
 export type SocialPlatform =
   | "instagram"
   | "facebook"

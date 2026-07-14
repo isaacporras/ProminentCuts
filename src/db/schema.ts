@@ -29,3 +29,26 @@ export const services = sqliteTable("services", {
   price: text("price"),
   durationMinutes: integer("duration_minutes"),
 });
+
+export const galleryImages = sqliteTable("gallery_images", {
+  id: text("id").primaryKey(),
+  url: text("url").notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+export const locations = sqliteTable("locations", {
+  id: text("id").primaryKey(),
+  address: text("address").notNull(),
+  mapEmbedUrl: text("map_embed_url"),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+// Single-row table: business-wide settings that aren't a list of anything
+// (schedule, contact info). Always operate on the row with id = "main".
+export const settings = sqliteTable("settings", {
+  id: text("id").primaryKey(),
+  workingHours: text("working_hours", { mode: "json" }).$type<WorkingHoursConfig>(),
+  contactPhone: text("contact_phone"),
+  contactEmail: text("contact_email"),
+  contactSocials: text("contact_socials", { mode: "json" }).$type<SocialLink[]>(),
+});

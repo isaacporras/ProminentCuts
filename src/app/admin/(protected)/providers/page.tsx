@@ -4,10 +4,12 @@ import { db } from "@/db/client";
 import { providers } from "@/db/schema";
 import { deleteProvider } from "./actions";
 import { DeleteButton } from "../DeleteButton";
+import { MAX_PROVIDERS } from "@/lib/limits";
 import { buttonPrimary, cardBase, eyebrow, pageHeading } from "../../ui";
 
 export default async function AdminProvidersPage() {
   const rows = db.select().from(providers).all();
+  const atLimit = rows.length >= MAX_PROVIDERS;
 
   return (
     <div>
@@ -15,11 +17,22 @@ export default async function AdminProvidersPage() {
         <div>
           <p className={eyebrow}>Panel</p>
           <h1 className={pageHeading}>Equipo</h1>
+          <p className="mt-1 text-sm text-text/45">
+            {rows.length} de {MAX_PROVIDERS}
+          </p>
         </div>
-        <Link href="/admin/providers/new" className={buttonPrimary}>
-          Agregar
-        </Link>
+        {!atLimit && (
+          <Link href="/admin/providers/new" className={buttonPrimary}>
+            Agregar
+          </Link>
+        )}
       </div>
+
+      {atLimit && (
+        <p className="mb-4 text-sm text-text/55">
+          Llegaste al máximo de {MAX_PROVIDERS} personas. Borrá a alguien para poder agregar otra.
+        </p>
+      )}
 
       {rows.length === 0 ? (
         <div className={`${cardBase} px-6 py-10 text-center`}>
