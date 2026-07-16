@@ -17,6 +17,10 @@ function slotIntervalFromForm(formData: FormData): number | null {
   return Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed) : null;
 }
 
+function timeFormatFromForm(formData: FormData): "24h" | "12h" {
+  return formData.get("timeFormat") === "12h" ? "12h" : "24h";
+}
+
 function socialsFromForm(formData: FormData): SocialLink[] {
   const socials: SocialLink[] = [];
   for (const platform of SOCIAL_PLATFORMS) {
@@ -35,6 +39,7 @@ export async function updateSettings(_prevState: { success?: boolean } | undefin
     contactEmail: String(formData.get("contactEmail") ?? "").trim() || null,
     contactSocials: socialsFromForm(formData),
     slotIntervalMinutes: slotIntervalFromForm(formData),
+    timeFormat: timeFormatFromForm(formData),
   };
 
   const existing = db.select({ id: settings.id }).from(settings).where(eq(settings.id, "main")).get();

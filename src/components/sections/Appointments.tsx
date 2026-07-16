@@ -11,7 +11,7 @@ export function Appointments() {
   const { appointments } = siteConfig;
   const row = db.select().from(settings).where(eq(settings.id, "main")).get();
   const workingHours = row?.workingHours ?? appointments.workingHours;
-  const schedule = formatWorkingHoursSchedule(workingHours);
+  const schedule = formatWorkingHoursSchedule(workingHours, row?.timeFormat ?? "24h");
 
   return (
     <section id="citas" className="relative overflow-hidden bg-primary/5 py-20">

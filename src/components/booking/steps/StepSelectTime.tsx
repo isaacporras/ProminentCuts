@@ -5,16 +5,18 @@ import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { siteConfig } from "@/config/site.config";
+import { formatTimeLabel, type TimeFormat } from "@/lib/schedule";
 import type { MonthAvailability, TimeSlot } from "@/types/booking";
 
 interface StepSelectTimeProps {
   date: string;
   availability: MonthAvailability;
   selected: TimeSlot | null;
+  timeFormat: TimeFormat;
   onSelect: (slot: TimeSlot) => void;
 }
 
-export function StepSelectTime({ date, availability, selected, onSelect }: StepSelectTimeProps) {
+export function StepSelectTime({ date, availability, selected, timeFormat, onSelect }: StepSelectTimeProps) {
   const slots = availability[date]?.slots ?? [];
   const formattedDate = format(parseISO(date), "EEEE d 'de' MMMM", { locale: es });
   const hasInProgress = slots.some((s) => s.inProgress);
@@ -44,7 +46,7 @@ export function StepSelectTime({ date, availability, selected, onSelect }: StepS
                   slot.inProgress && "cursor-not-allowed border-amber-300 bg-amber-50 text-amber-600"
                 )}
               >
-                {slot.start}
+                {formatTimeLabel(slot.start, timeFormat)}
               </button>
             );
           })}

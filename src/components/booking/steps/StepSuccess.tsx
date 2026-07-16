@@ -4,14 +4,16 @@ import { CheckCircle } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { siteConfig } from "@/config/site.config";
+import { formatTimeLabel, type TimeFormat } from "@/lib/schedule";
 import type { BookingState } from "@/types/booking";
 
 interface StepSuccessProps {
   state: BookingState;
   onClose: () => void;
+  timeFormat: TimeFormat;
 }
 
-export function StepSuccess({ state, onClose }: StepSuccessProps) {
+export function StepSuccess({ state, onClose, timeFormat }: StepSuccessProps) {
   const { provider, service, date, slot, form } = state;
   if (!provider || !service || !date || !slot) return null;
 
@@ -37,7 +39,9 @@ export function StepSuccess({ state, onClose }: StepSuccessProps) {
         <div className="py-2.5">
           <span className="text-text/50">Fecha y hora</span>
           <p className="font-semibold capitalize">{formattedDate}</p>
-          <p className="text-secondary font-bold">{slot.start} – {slot.end}</p>
+          <p className="text-secondary font-bold">
+            {formatTimeLabel(slot.start, timeFormat)} – {formatTimeLabel(slot.end, timeFormat)}
+          </p>
         </div>
       </div>
 

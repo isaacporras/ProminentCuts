@@ -5,6 +5,7 @@ import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { buildWhatsAppLink } from "@/lib/utils";
 import { siteConfig } from "@/config/site.config";
+import { formatTimeLabel, type TimeFormat } from "@/lib/schedule";
 import type { BookingState } from "@/types/booking";
 
 interface StepConfirmationProps {
@@ -12,6 +13,7 @@ interface StepConfirmationProps {
   onConfirm: () => void;
   loading: boolean;
   error: string | null;
+  timeFormat: TimeFormat;
 }
 
 interface RowProps { label: string; value: string }
@@ -24,11 +26,13 @@ function Row({ label, value }: RowProps) {
   );
 }
 
-export function StepConfirmation({ state, onConfirm, loading, error }: StepConfirmationProps) {
+export function StepConfirmation({ state, onConfirm, loading, error, timeFormat }: StepConfirmationProps) {
   const { provider, service, date, slot, form } = state;
   if (!provider || !service || !date || !slot) return null;
 
   const formattedDate = format(parseISO(date), "EEEE d 'de' MMMM yyyy", { locale: es });
+  const formattedStart = formatTimeLabel(slot.start, timeFormat);
+  const formattedEnd = formatTimeLabel(slot.end, timeFormat);
 
   return (
     <div>
@@ -39,7 +43,7 @@ export function StepConfirmation({ state, onConfirm, loading, error }: StepConfi
         <Row label={siteConfig.terminology.providerSingular} value={provider.name} />
         <Row label="Servicio" value={`${service.name}${service.price ? ` — ${service.price}` : ""}`} />
         <Row label="Fecha" value={formattedDate} />
-        <Row label="Hora" value={`${slot.start} – ${slot.end}`} />
+        <Row label="Hora" value={`${formattedStart} – ${formattedEnd}`} />
         <Row label="Cliente" value={form.name} />
         <Row label="Email" value={form.email} />
         <Row label="Teléfono" value={form.phone} />
@@ -55,7 +59,7 @@ export function StepConfirmation({ state, onConfirm, loading, error }: StepConfi
           <a
             href={buildWhatsAppLink(
               siteConfig.appointments.ctaValue,
-              `Hola, quiero reservar una cita de ${service.name} con ${provider.name} el ${formattedDate} a las ${slot.start}.`
+              `Hola, quiero reservar una cita de ${service.name} con ${provider.name} el ${formattedDate} a las ${formattedStart}.`
             )}
             target="_blank"
             rel="noopener noreferrer"

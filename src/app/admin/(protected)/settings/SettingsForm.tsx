@@ -74,6 +74,21 @@ export function SettingsForm({ settings }: SettingsFormProps) {
             intervalo desde su perfil.
           </p>
         </div>
+
+        <div className="mt-5">
+          <label className={labelBase}>Formato de hora</label>
+          <select
+            name="timeFormat"
+            defaultValue={settings?.timeFormat ?? "24h"}
+            className={inputBase}
+          >
+            <option value="24h">24 horas (ej. 16:30)</option>
+            <option value="12h">12 horas — AM/PM (ej. 4:30 PM)</option>
+          </select>
+          <p className="mt-1.5 text-xs text-text/45">
+            Cómo se muestran los horarios en el sitio y al reservar una cita.
+          </p>
+        </div>
       </fieldset>
 
       <div className={`${cardBase} flex flex-col gap-5 p-6`}>
