@@ -1,160 +1,135 @@
-# Sistema de Barbería — Sitio Web con Reservas Online
+# ServiceProvider — plantilla de sitio con reservas online
 
-Plataforma web modular para negocios de servicios (barbería, nutricionistas, terapeutas físicos, etc.). El contenido y la terminología se configuran desde un único archivo, sin tocar componentes.
+Plantilla reutilizable para negocios de servicios (salón, barbería, nutricionista, etc.). Cada negocio es un branch propio + su propio repo en GitHub + su propia app en Coolify. Todos parten de `main`.
 
 ## Tecnologías
 
-- **Next.js 16** (App Router, TypeScript, output standalone)
-- **Tailwind CSS v4**
-- **Google Calendar API** — disponibilidad y creación de eventos por barbero
-- **Nodemailer + Gmail SMTP** — email de confirmación al cliente
-- **Docker** — imagen de producción y entorno de desarrollo
+- **Next.js 16** (App Router, TypeScript, `output: standalone`)
+- **SQLite + Drizzle ORM** — providers, servicios, galería, ubicaciones y configuración, editables desde `/admin`
+- **Google Calendar API** — disponibilidad y creación de eventos por proveedor
+- **Nodemailer + Gmail SMTP** — emails de confirmación/notificación
+- **Docker + Coolify** — build y deploy en el VPS
 
 ---
 
-## Configuración inicial
+## Guía 1: probar un cliente nuevo en local
 
-### 1. Variables de entorno
+1. **Repo del cliente.** Creá un repo privado nuevo en GitHub (ej. `NombreNegocio`). Todavía no le pongas nada.
 
-Copia el archivo de ejemplo y rellena los valores:
+2. **Branch desde `main`** (asegurate de que `main` esté actualizado primero):
+   ```bash
+   git checkout main && git pull
+   git checkout -b nombre_negocio
+   ```
+
+3. **Contenido del sitio** — todo vive en `src/config/site.config.ts`: nombre, colores (`theme`), textos, navegación, horario, contacto, redes. Es el único archivo que hay que tocar para "convertir" el sitio.
+
+4. **Imágenes** en `public/brand/`:
+   - `backgrounds/hero.webp` — fondo del hero
+   - `logo.webp` — favicon/logo (opcional, cae a `public/favicon.ico` si no existe)
+   - `gallery/*.webp` — semilla inicial de la galería (se importa una sola vez a la base de datos, después se administra desde `/admin/gallery`)
+
+   Si el hero es una foto panorámica con detalles importantes cerca de los bordes (no solo centrados), preparar además un recorte propio para celular — `object-cover` en una pantalla angosta siempre pierde los costados de una imagen ancha, no hay ajuste de CSS que lo arregle. Configuralo en `site.config.ts`:
+   ```ts
+   sectionBackgrounds: {
+     hero: {
+       image: "/brand/backgrounds/hero.webp",        // desktop
+       imageMobile: "/brand/backgrounds/hero-mobile.webp", // recorte ~4:3 para <640px
+     },
+   },
+   ```
+   Sin `imageMobile`, se usa la misma imagen en todos los tamaños (comportamiento de siempre).
+
+5. **`.env.local`** propio para probar en local (no se commitea):
+   ```bash
+   cp .env.example .env.local
+   ```
+   Rellenalo con las credenciales de Google/Gmail (podés usar las de prueba mientras armás el sitio, y las reales del cliente recién en producción — ver Guía 2).
+
+6. **Probar:**
+   ```bash
+   npm install
+   npm run db:migrate    # crea la DB local y siembra el admin inicial
+   npm run dev
+   ```
+   Entrá a `/admin/login` con `ADMIN_INITIAL_USER`/`ADMIN_INITIAL_PASSWORD` (de tu `.env.local`) y cargá providers, servicios, ubicaciones, galería y horario desde ahí — no hace falta tocar código para eso.
+
+7. **Commitear y pushear al repo del cliente:**
+   ```bash
+   git add -A
+   git commit -m "Configurar sitio para <negocio>"
+   git remote add nombre_negocio git@github.com:isaacporras/NombreNegocio.git
+   git push nombre_negocio nombre_negocio:nombre_negocio
+   ```
+   > ⚠️ **Ojo con el nombre de la rama remota.** Si el repo ya tenía algo (poco probable en uno nuevo, pero pasó antes), corré `git remote show nombre_negocio` **antes** de pushear y fijate cuál es el "HEAD branch" real — pushear a la rama equivocada crea una rama nueva que Coolify nunca va a ver.
+
+---
+
+## Guía 2: desplegar en Coolify
+
+1. **Nuevo recurso** en Coolify → Application → conectá el repo del cliente → elegí la rama (`nombre_negocio`).
+
+2. **Build Pack — ajustá esto a mano, Coolify a veces detecta mal y usa Nixpacks:**
+   - Build Pack: **Dockerfile**
+   - Dockerfile Location: `docker/Dockerfile`
+   - Base Directory: `/`
+   - Docker Build Stage Target: `runner`
+
+3. **Directory Mount (persistencia).** Sin esto, cada redeploy borra la base de datos y las fotos subidas desde `/admin`:
+   - Source Path (en el VPS): algo como `/data/coolify/<negocio>/data`
+   - Destination Path (en el contenedor): `/app/data`
+
+   > ⚠️ **Permisos.** Docker crea esa carpeta del host como `root` si no existe. La app corre como usuario `node` (uid 1000) y truena con `SQLITE_CANTOPEN` si no coinciden. Después del primer deploy (o antes, si ya sabés el path), por SSH:
+   > ```bash
+   > chown -R 1000:1000 /data/coolify/<negocio>/data
+   > ```
+   > (Hay un fix para automatizar esto en `feature/entrypoint-auto-chown`, pendiente de mergear — preguntame si querés activarlo antes de este deploy.)
+
+4. **Variables de entorno** — van en **"Production Environment Variables"**, NO en "Preview Deployments" (son dos secciones separadas en Coolify y es fácil poner las variables en la que no es):
+   ```
+   DATABASE_PATH=/app/data/app.db
+   AUTH_SECRET=<openssl rand -base64 32>
+   ADMIN_INITIAL_USER=admin
+   ADMIN_INITIAL_PASSWORD=<algo temporal, se cambia luego desde /admin/account>
+   GOOGLE_SERVICE_ACCOUNT_EMAIL=<el real del cliente>
+   GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY=<el real del cliente>
+   GMAIL_USER=<el real del cliente>
+   GMAIL_APP_PASSWORD=<el real del cliente>
+   ```
+   `MAX_GALLERY_IMAGES` / `MAX_PROVIDERS` son opcionales (caen a 8 y 5 si no se setean).
+
+5. **Deploy.** Las migraciones corren solas al arrancar el contenedor (`node migrate.js && node server.js`). Revisá los logs del deploy si algo falla.
+
+6. **Verificar:**
+   - El sitio carga y el favicon/logo son los correctos
+   - `/admin/login` funciona con las credenciales iniciales → entrá y cambiá la contraseña
+   - Si ya cargaste providers/servicios/galería en local (Guía 1, paso 6), esos datos **no viajan solos** — hay que recargarlos desde `/admin` en producción, o pedirme que los siembre directo en la base vía SSH si ya los tenías armados
+   - Un proveedor con Google Calendar debe compartir su calendario con el service account (permiso "Realizar cambios en eventos") o no le van a aparecer horarios
+
+7. **Dominio:** en la pestaña "Domains" de Coolify, poné el dominio final o usá el que Coolify asigna por defecto.
+
+---
+
+## Levantar con Docker (referencia rápida)
 
 ```bash
-cp .env.example .env.local
-```
-
-Contenido de `.env.local`:
-
-```env
-# Google Calendar — Service Account
-# Genera el JSON en: console.cloud.google.com → IAM → Cuentas de servicio
-# Luego ejecuta: node scripts/setup-env.mjs <ruta-al-json>
-GOOGLE_SERVICE_ACCOUNT_EMAIL="bot@proyecto.iam.gserviceaccount.com"
-GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-
-# Gmail SMTP — contraseña de aplicación (requiere 2FA activado en Gmail)
-# Genera en: myaccount.google.com → Seguridad → Contraseñas de aplicación
-GMAIL_USER="labarberia@gmail.com"
-GMAIL_APP_PASSWORD="xxxx xxxx xxxx xxxx"
-```
-
-#### Generar `.env.local` desde el JSON de Google Cloud
-
-Si ya descargaste el JSON del service account, el script lo hace automáticamente:
-
-```bash
-node scripts/setup-env.mjs barberiatest-501123-2835ada448a0.json
-```
-
-Esto extrae `client_email` y `private_key` del JSON y los escribe en `.env.local`.
-
----
-
-### 2. Configurar el contenido del sitio
-
-Todo el contenido vive en **`src/config/site.config.ts`**: nombre del negocio, servicios, barberos, horarios, redes sociales, colores, y fondos de sección.
-
-Para convertir el sitio en otro rubro (ej. nutricionistas) solo se edita ese archivo — los componentes nunca tienen texto hardcodeado.
-
-#### Agregar un barbero al sistema de reservas
-
-En `src/config/site.config.ts`, cada barbero necesita el campo `googleCalendarId`:
-
-```ts
-providers: [
-  {
-    name: "Kevin Figueroa",
-    googleCalendarId: "kevin@gmail.com",  // Gmail cuyo calendario se usa
-    ...
-  },
-]
-```
-
-Luego ese barbero debe compartir su Google Calendar con el service account:
-
-> Google Calendar → Configuración del calendario → Compartir con personas  
-> → Agregar: `bot@proyecto.iam.gserviceaccount.com`  
-> → Permiso: **"Realizar cambios en eventos"**
-
-Los barberos sin `googleCalendarId` no aparecen en el wizard de reservas.
-
----
-
-### 3. Imágenes
-
-Coloca las imágenes en `public/brand/`:
-
-```
-public/
-└── brand/
-    ├── backgrounds/
-    │   └── hero.webp          ← fondo del hero
-    └── providers/
-        ├── kevin-figueroa.webp
-        ├── leonardo-carcache.webp
-        └── barbero-3.webp
-```
-
-En el compose de producción estas imágenes se montan como volumen, por lo que puedes cambiarlas **sin reconstruir la imagen Docker**.
-
----
-
-## Levantar con Docker
-
-### Producción
-
-```bash
+# Producción (imagen final, igual a lo que corre en el VPS)
 docker compose -f docker/docker-compose.yml up --build
-```
 
-Levanta la app en `http://localhost:3000`. Lee `.env.local` automáticamente.
-
-Para correr en background:
-
-```bash
-docker compose -f docker/docker-compose.yml up --build -d
-
-# Ver logs
-docker compose -f docker/docker-compose.yml logs -f
-
-# Detener
-docker compose -f docker/docker-compose.yml down
-```
-
-**Cambiar fotos sin rebuild:** edita los archivos en `public/brand/` y reinicia el contenedor:
-
-```bash
-docker compose -f docker/docker-compose.yml restart
-```
-
-### Desarrollo (hot reload)
-
-```bash
+# Desarrollo (hot reload, monta el código fuente)
 docker compose -f docker/docker-compose.dev.yml up
 ```
 
-Monta el código fuente directamente en el contenedor. Cualquier cambio en archivos `.tsx`/`.ts`/`.css` se refleja en el navegador sin reiniciar.
-
----
-
 ## Levantar sin Docker
 
-### Requisitos
-
-- Node.js 20+ (instalar con `nvm install --lts`)
-
-### Comandos
-
 ```bash
-# Instalar dependencias
 npm install
-
-# Desarrollo
-npm run dev
-
-# Producción
-npm run build
-npm start
+npm run db:migrate
+npm run dev      # desarrollo
+npm run build && npm start   # producción
 ```
+
+Requiere Node 20+.
 
 ---
 
@@ -163,46 +138,48 @@ npm start
 ```
 ├── src/
 │   ├── app/
+│   │   ├── admin/                      # Panel de administración (/admin)
 │   │   ├── api/
-│   │   │   ├── availability/route.ts   # GET disponibilidad mensual por barbero
-│   │   │   └── book/route.ts           # POST crear cita + enviar email
+│   │   │   ├── availability/route.ts   # GET disponibilidad mensual por proveedor
+│   │   │   ├── book/route.ts           # POST crear cita + emails
+│   │   │   └── site-settings/route.ts  # Config pública (ej. formato de hora) para el wizard
 │   │   ├── layout.tsx
 │   │   └── page.tsx
 │   ├── components/
-│   │   ├── booking/                    # Wizard de reservas (7 pasos)
-│   │   │   ├── BookingModal.tsx
-│   │   │   ├── BookingWizard.tsx
-│   │   │   └── steps/
+│   │   ├── booking/                    # Wizard de reservas
 │   │   ├── layout/                     # Navbar y Footer
-│   │   ├── sections/                   # Hero, Servicios, Citas, Ubicación, Barberos, Contacto
-│   │   └── ui/                         # Componentes reutilizables
+│   │   ├── sections/                   # Hero, Servicios, Citas, Ubicación, Equipo, Galería, Contacto
+│   │   └── ui/
 │   ├── config/
-│   │   └── site.config.ts              # ← ÚNICO archivo a editar para personalizar el sitio
+│   │   └── site.config.ts              # ← archivo principal a editar por negocio
+│   ├── db/
+│   │   ├── schema.ts                   # Tablas: providers, services, galleryImages, locations, settings, adminUsers
+│   │   ├── migrate.ts                  # Corre migraciones + siembra admin inicial
+│   │   └── seed-from-config.ts         # Importa una sola vez el contenido legacy de site.config.ts a la DB
 │   ├── lib/
-│   │   ├── google-calendar.ts          # Lógica de disponibilidad y creación de eventos
-│   │   ├── mailer.ts                   # Email de confirmación vía Gmail SMTP
-│   │   └── utils.ts
+│   │   ├── google-calendar.ts          # Disponibilidad y creación de eventos
+│   │   ├── mailer.ts                   # Emails vía Gmail SMTP
+│   │   ├── auth.ts                     # Sesión de /admin
+│   │   ├── rate-limit.ts               # Rate limiting en memoria (login, /api/book, /api/availability)
+│   │   └── schedule.ts                 # Horarios y formato de hora (24h/12h)
 │   └── types/
-│       ├── booking.ts                  # Tipos del wizard de reservas
-│       └── site-config.ts              # Tipos de configuración del sitio
-├── public/brand/                       # Imágenes (montadas como volumen en Docker)
-├── scripts/
-│   └── setup-env.mjs                   # Genera .env.local desde JSON de service account
+├── drizzle/                             # Migraciones SQL generadas
+├── public/brand/                        # Imágenes propias del negocio
 ├── docker/
 │   ├── Dockerfile
-│   ├── docker-compose.yml              # Producción
-│   └── docker-compose.dev.yml          # Desarrollo
-└── .env.example                        # Plantilla de variables de entorno
+│   ├── docker-compose.yml
+│   └── docker-compose.dev.yml
+└── .env.example
 ```
 
 ---
 
 ## Flujo del wizard de reservas
 
-1. **Barbero** — elige con quién reservar (solo barberos con `googleCalendarId`)
-2. **Servicio** — elige el servicio (solo los que tienen `durationMinutes`)
-3. **Fecha** — calendario mensual con barra de ocupación por día (verde/amarillo/rojo)
-4. **Hora** — slots disponibles calculados según duración del servicio y eventos del calendario
-5. **Datos** — nombre, email, teléfono, comentarios
-6. **Confirmación** — resumen antes de confirmar
-7. **Éxito** — evento creado en Google Calendar + email enviado al cliente
+1. **Proveedor** — solo aparecen los que tienen `googleCalendarId` cargado desde `/admin`
+2. **Servicio** — solo los que tienen duración configurada
+3. **Fecha** — calendario mensual con ocupación por día
+4. **Hora** — slots calculados según duración del servicio, intervalo mínimo configurado y eventos ya existentes en el calendario
+5. **Datos del cliente**
+6. **Confirmación**
+7. **Éxito** — evento creado en Google Calendar + emails enviados

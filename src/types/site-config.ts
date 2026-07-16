@@ -140,6 +140,14 @@ export interface ThemeConfig {
  */
 export interface SectionBackground {
   image?: string;
+  /**
+   * Optional art-directed crop for narrow screens (< sm). Landscape photos
+   * with content near both edges lose it to object-cover once the section
+   * gets taller-than-wide on mobile — cropping alone can't fix that, a
+   * separately composed image can. Falls back to `image` when unset.
+   * Expected aspect ratio: ~4:3 (matches the mobile hero band).
+   */
+  imageMobile?: string;
   color?: string;
 }
 
