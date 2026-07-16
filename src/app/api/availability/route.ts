@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
-import { getMonthAvailability } from "@/lib/google-calendar";
+import { getMonthAvailability, DEFAULT_SLOT_INTERVAL_MINUTES } from "@/lib/google-calendar";
 import { siteConfig } from "@/config/site.config";
 import { db } from "@/db/client";
 import { providers, settings } from "@/db/schema";
@@ -17,6 +17,24 @@ function resolveWorkingHours(calendarId: string) {
     .where(eq(providers.googleCalendarId, calendarId))
     .get();
   return provider?.workingHours ?? generalWorkingHours();
+}
+
+function generalSlotInterval() {
+  const row = db
+    .select({ slotIntervalMinutes: settings.slotIntervalMinutes })
+    .from(settings)
+    .where(eq(settings.id, "main"))
+    .get();
+  return row?.slotIntervalMinutes ?? DEFAULT_SLOT_INTERVAL_MINUTES;
+}
+
+function resolveSlotInterval(calendarId: string) {
+  const provider = db
+    .select({ slotIntervalMinutes: providers.slotIntervalMinutes })
+    .from(providers)
+    .where(eq(providers.googleCalendarId, calendarId))
+    .get();
+  return provider?.slotIntervalMinutes ?? generalSlotInterval();
 }
 
 export async function GET(req: NextRequest) {
@@ -37,7 +55,8 @@ export async function GET(req: NextRequest) {
       month,
       duration,
       resolveWorkingHours(calendarId),
-      siteConfig.appointments.timezone
+      siteConfig.appointments.timezone,
+      resolveSlotInterval(calendarId)
     );
     return NextResponse.json(availability);
   } catch (err) {

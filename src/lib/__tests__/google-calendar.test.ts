@@ -10,7 +10,14 @@ const SCHEDULE = { start: "08:00", end: "10:00" }; // 2-hour window → 4 slots 
 describe("_computeDaySlots", () => {
   describe("slot generation", () => {
     it("generates a slot every 30 minutes within the working window", () => {
-      const { slots } = _computeDaySlots(DATE, SCHEDULE, [], 30, TZ);
+      const { slots } = _computeDaySlots(
+        DATE,
+        SCHEDULE,
+        [],
+        30,
+        30,
+        TZ
+      );
       expect(slots).toHaveLength(4);
       expect(slots[0]).toMatchObject({ start: "08:00", end: "08:30" });
       expect(slots[1]).toMatchObject({ start: "08:30", end: "09:00" });
@@ -21,14 +28,28 @@ describe("_computeDaySlots", () => {
     it("does not generate a slot whose end exceeds workEnd", () => {
       // 08:00–08:45 → only one 30-min slot fits (08:00–08:30); 08:30+30=09:00 > 08:45
       const short = { start: "08:00", end: "08:45" };
-      const { slots } = _computeDaySlots(DATE, short, [], 30, TZ);
+      const { slots } = _computeDaySlots(
+        DATE,
+        short,
+        [],
+        30,
+        30,
+        TZ
+      );
       expect(slots).toHaveLength(1);
       expect(slots[0]).toMatchObject({ start: "08:00", end: "08:30" });
     });
 
     it("returns empty slots for a zero-length window", () => {
       const empty = { start: "10:00", end: "10:00" };
-      const { slots, total, free } = _computeDaySlots(DATE, empty, [], 30, TZ);
+      const { slots, total, free } = _computeDaySlots(
+        DATE,
+        empty,
+        [],
+        30,
+        30,
+        TZ
+      );
       expect(slots).toHaveLength(0);
       expect(total).toBe(0);
       expect(free).toBe(0);
@@ -39,11 +60,33 @@ describe("_computeDaySlots", () => {
     it("advances the cursor by 30 min even when durationMinutes is 45", () => {
       // 08:00+45=08:45 ≤ 10:00 ✓ | 08:30+45=09:15 ≤ 10:00 ✓ | 09:00+45=09:45 ≤ 10:00 ✓
       // 09:30+45=10:15 > 10:00 → stop. 3 slots, overlapping.
-      const { slots } = _computeDaySlots(DATE, SCHEDULE, [], 45, TZ);
+      const { slots } = _computeDaySlots(
+        DATE,
+        SCHEDULE,
+        [],
+        45,
+        30,
+        TZ
+      );
       expect(slots).toHaveLength(3);
       expect(slots[0]).toMatchObject({ start: "08:00", end: "08:45" });
       expect(slots[1]).toMatchObject({ start: "08:30", end: "09:15" });
       expect(slots[2]).toMatchObject({ start: "09:00", end: "09:45" });
+    });
+
+    it("honors a custom slotStepMinutes instead of the 30-min default", () => {
+      // Cursor 08:00..09:30 by 15 min (last one where +30min duration still
+      // fits the 10:00 window end) = 7 slots.
+      const { slots } = _computeDaySlots(DATE, SCHEDULE, [], 30, 15, TZ);
+      expect(slots).toHaveLength(7);
+      expect(slots[1]).toMatchObject({ start: "08:15", end: "08:45" });
+    });
+
+    it("supports a step larger than the default (e.g. 60 min)", () => {
+      const { slots } = _computeDaySlots(DATE, SCHEDULE, [], 30, 60, TZ);
+      expect(slots).toHaveLength(2);
+      expect(slots[0]).toMatchObject({ start: "08:00" });
+      expect(slots[1]).toMatchObject({ start: "09:00" });
     });
   });
 
@@ -54,19 +97,40 @@ describe("_computeDaySlots", () => {
     ];
 
     it("marks a slot overlapping a busy interval as unavailable", () => {
-      const { slots } = _computeDaySlots(DATE, SCHEDULE, busyMidSlot, 30, TZ);
+      const { slots } = _computeDaySlots(
+        DATE,
+        SCHEDULE,
+        busyMidSlot,
+        30,
+        30,
+        TZ
+      );
       expect(slots[1]).toMatchObject({ start: "08:30", available: false });
     });
 
     it("leaves adjacent slots available when only one slot is busy", () => {
-      const { slots } = _computeDaySlots(DATE, SCHEDULE, busyMidSlot, 30, TZ);
+      const { slots } = _computeDaySlots(
+        DATE,
+        SCHEDULE,
+        busyMidSlot,
+        30,
+        30,
+        TZ
+      );
       expect(slots[0]).toMatchObject({ start: "08:00", available: true });
       expect(slots[2]).toMatchObject({ start: "09:00", available: true });
       expect(slots[3]).toMatchObject({ start: "09:30", available: true });
     });
 
     it("returns correct total and free counts", () => {
-      const { total, free } = _computeDaySlots(DATE, SCHEDULE, busyMidSlot, 30, TZ);
+      const { total, free } = _computeDaySlots(
+        DATE,
+        SCHEDULE,
+        busyMidSlot,
+        30,
+        30,
+        TZ
+      );
       expect(total).toBe(4);
       expect(free).toBe(3);
     });
@@ -76,7 +140,14 @@ describe("_computeDaySlots", () => {
       const allBusy = [
         { start: parseISO("2026-07-15T14:00:00Z"), end: parseISO("2026-07-15T16:00:00Z") },
       ];
-      const { free, slots } = _computeDaySlots(DATE, SCHEDULE, allBusy, 30, TZ);
+      const { free, slots } = _computeDaySlots(
+        DATE,
+        SCHEDULE,
+        allBusy,
+        30,
+        30,
+        TZ
+      );
       expect(free).toBe(0);
       expect(slots.every((s) => !s.available)).toBe(true);
     });
@@ -85,7 +156,14 @@ describe("_computeDaySlots", () => {
   describe("timezone correctness", () => {
     it("expresses slot times in the business timezone, not UTC", () => {
       // If timezone were ignored and UTC used, a CR 08:00 slot would appear as 14:00.
-      const { slots } = _computeDaySlots(DATE, SCHEDULE, [], 30, TZ);
+      const { slots } = _computeDaySlots(
+        DATE,
+        SCHEDULE,
+        [],
+        30,
+        30,
+        TZ
+      );
       expect(slots[0].start).toBe("08:00");
       expect(slots[0].end).toBe("08:30");
     });
@@ -95,7 +173,14 @@ describe("_computeDaySlots", () => {
       const busy = [
         { start: parseISO("2026-07-15T14:30:00Z"), end: parseISO("2026-07-15T15:00:00Z") },
       ];
-      const { slots } = _computeDaySlots(DATE, SCHEDULE, busy, 30, TZ);
+      const { slots } = _computeDaySlots(
+        DATE,
+        SCHEDULE,
+        busy,
+        30,
+        30,
+        TZ
+      );
       const slot = slots.find((s) => s.start === "08:30");
       expect(slot?.available).toBe(false);
     });
@@ -107,12 +192,13 @@ describe("_filterPastSlots", () => {
   const DATE = "2026-07-15";
   // Slots: 08:00, 08:30, 09:00, 09:30 (all available initially)
   const baseResult = _computeDaySlots(
-    DATE,
-    { start: "08:00", end: "10:00" },
-    [],
-    30,
-    TZ
-  );
+        DATE,
+        { start: "08:00", end: "10:00" },
+        [],
+        30,
+        30,
+        TZ
+      );
 
   it("marks slots whose start has passed as unavailable", () => {
     // now = 08:45 CR = 14:45 UTC — slots 08:00 and 08:30 have started already

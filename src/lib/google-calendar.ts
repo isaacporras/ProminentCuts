@@ -4,8 +4,9 @@ import { fromZonedTime, formatInTimeZone } from "date-fns-tz";
 import type { WorkingHoursConfig, DaySchedule } from "@/types/site-config";
 import type { MonthAvailability, DayAvailability, TimeSlot } from "@/types/booking";
 
-// Slots are always offered every 30 minutes at minimum.
-const SLOT_STEP = 30;
+// Fallback used when neither the business (settings.slotIntervalMinutes) nor
+// the provider (providers.slotIntervalMinutes) has configured a value.
+export const DEFAULT_SLOT_INTERVAL_MINUTES = 30;
 
 function getCalendarAuth() {
   return new google.auth.JWT({
@@ -21,6 +22,7 @@ export function _computeDaySlots(
   daySchedule: DaySchedule,
   busyIntervals: { start: Date; end: Date }[],
   durationMinutes: number,
+  slotStepMinutes: number,
   tz: string
 ): DayAvailability {
   // Build UTC boundaries from the business local time
@@ -40,7 +42,7 @@ export function _computeDaySlots(
       end:   formatInTimeZone(slotEnd, tz, "HH:mm"),
       available: !isBusy,
     });
-    cursor = addMinutes(cursor, SLOT_STEP);
+    cursor = addMinutes(cursor, slotStepMinutes);
   }
 
   return {
@@ -77,7 +79,8 @@ export async function getMonthAvailability(
   month: number, // 1-indexed
   durationMinutes: number,
   workingHours: WorkingHoursConfig,
-  tz: string
+  tz: string,
+  slotStepMinutes: number = DEFAULT_SLOT_INTERVAL_MINUTES
 ): Promise<MonthAvailability> {
   const auth = getCalendarAuth();
   const calendar = google.calendar({ version: "v3", auth });
@@ -133,7 +136,7 @@ export async function getMonthAvailability(
       (b) => formatInTimeZone(b.start, tz, "yyyy-MM-dd") === dateStr
     );
 
-    let dayResult = _computeDaySlots(dateStr, schedule, dayBusy, durationMinutes, tz);
+    let dayResult = _computeDaySlots(dateStr, schedule, dayBusy, durationMinutes, slotStepMinutes, tz);
 
     if (dateStr === todayStr) {
       dayResult = _filterPastSlots(dateStr, dayResult, now, tz);

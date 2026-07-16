@@ -20,6 +20,9 @@ export const providers = sqliteTable("providers", {
   // Provider-specific schedule override. Null falls back to
   // siteConfig.appointments.workingHours.
   workingHours: text("working_hours", { mode: "json" }).$type<WorkingHoursConfig>(),
+  // Provider-specific minimum interval between appointment start times, in
+  // minutes. Null falls back to the business-wide value in `settings`.
+  slotIntervalMinutes: integer("slot_interval_minutes"),
 });
 
 export const services = sqliteTable("services", {
@@ -51,4 +54,7 @@ export const settings = sqliteTable("settings", {
   contactPhone: text("contact_phone"),
   contactEmail: text("contact_email"),
   contactSocials: text("contact_socials", { mode: "json" }).$type<SocialLink[]>(),
+  // Business-wide minimum interval between appointment start times, in
+  // minutes. Null falls back to DEFAULT_SLOT_INTERVAL_MINUTES.
+  slotIntervalMinutes: integer("slot_interval_minutes"),
 });
