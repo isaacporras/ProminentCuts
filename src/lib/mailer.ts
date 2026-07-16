@@ -44,7 +44,7 @@ export async function sendConfirmationEmail(data: BookingEmailData) {
   // Primary (first) location and phone — falls back to the static config
   // seed until a business has set these from /admin.
   const primaryLocation = db.select().from(locations).orderBy(locations.sortOrder).limit(1).get();
-  const address = primaryLocation?.address ?? siteConfig.location.address;
+  const address = primaryLocation?.address ?? siteConfig.location?.address ?? "";
   const settingsRow = db.select().from(settings).where(eq(settings.id, "main")).get();
   const phone = settingsRow?.contactPhone ?? siteConfig.contact.phone;
 

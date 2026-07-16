@@ -57,4 +57,8 @@ export const settings = sqliteTable("settings", {
   // Business-wide minimum interval between appointment start times, in
   // minutes. Null falls back to DEFAULT_SLOT_INTERVAL_MINUTES.
   slotIntervalMinutes: integer("slot_interval_minutes"),
+  // How times are displayed to site visitors (schedule text, booking wizard).
+  // Null falls back to "24h". Doesn't affect admin <input type="time">
+  // fields — those follow the browser's own locale.
+  timeFormat: text("time_format").$type<"24h" | "12h">(),
 });

@@ -67,6 +67,10 @@ export interface AppointmentsInfo {
   ctaLabel: string;
 }
 
+// Legacy: seed source for the `locations` table (see
+// src/db/seed-from-config.ts) and a fallback address in confirmation emails
+// before any location has been added via /admin. Safe to leave unset on new
+// branches once at least one DB location exists.
 export interface LocationInfo {
   address: string;
   mapEmbedUrl?: string;
@@ -158,16 +162,16 @@ export interface SiteConfig {
   terminology: Terminology;
   nav: NavItem[];
   hero: HeroContent;
-  // Legacy: some business branches still hardcode their catalog here from
-  // before providers/services moved to the database (see
+  // Legacy: some business branches still hardcode providers/services/location
+  // here from before those moved to the database (see
   // src/db/seed-from-config.ts to import them once, then these are safe to
   // delete). New branches should leave these unset — /admin is the only
-  // way to manage providers/services from here on.
+  // way to manage providers/services/locations from here on.
   providers?: ProviderItem[];
   services?: ServiceItem[];
   servicesSubtitle: string;
   appointments: AppointmentsInfo;
-  location: LocationInfo;
+  location?: LocationInfo;
   providersSubtitle: string;
   contact: ContactInfo;
   theme: ThemeConfig;

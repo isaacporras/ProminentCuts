@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import type { BookingState, BookingStep, MonthAvailability } from "@/types/booking";
 import type { ProviderItem, ServiceItem } from "@/types/site-config";
+import type { TimeFormat } from "@/lib/schedule";
 import { BOOKING_STEPS } from "@/types/booking";
 import { WizardProgressBar } from "./WizardProgressBar";
 import { StepSelectProvider } from "./steps/StepSelectProvider";
@@ -39,14 +40,17 @@ export function BookingWizard({ onClose }: BookingWizardProps) {
   // the wizard fetches them once instead of importing siteConfig directly.
   const [providers, setProviders] = useState<ProviderItem[] | null>(null);
   const [services, setServices] = useState<ServiceItem[] | null>(null);
+  const [timeFormat, setTimeFormat] = useState<TimeFormat>("24h");
 
   useEffect(() => {
     Promise.all([
       fetch("/api/providers").then((res) => res.json()),
       fetch("/api/services").then((res) => res.json()),
-    ]).then(([providersData, servicesData]) => {
+      fetch("/api/site-settings").then((res) => res.json()),
+    ]).then(([providersData, servicesData, siteSettings]) => {
       setProviders(providersData);
       setServices(servicesData);
+      setTimeFormat(siteSettings.timeFormat ?? "24h");
     });
   }, []);
 
@@ -153,6 +157,7 @@ export function BookingWizard({ onClose }: BookingWizardProps) {
             date={state.date}
             availability={monthAvailability}
             selected={state.slot}
+            timeFormat={timeFormat}
             onSelect={(slot) => { setState((s) => ({ ...s, slot })); advance(); }}
           />
         )}
@@ -168,10 +173,11 @@ export function BookingWizard({ onClose }: BookingWizardProps) {
             onConfirm={handleConfirm}
             loading={bookingLoading}
             error={bookingError}
+            timeFormat={timeFormat}
           />
         )}
         {step === "success" && (
-          <StepSuccess state={state} onClose={onClose} />
+          <StepSuccess state={state} onClose={onClose} timeFormat={timeFormat} />
         )}
       </div>
 

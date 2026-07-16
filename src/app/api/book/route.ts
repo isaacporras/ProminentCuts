@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { getMonthAvailability, createBookingEvent } from "@/lib/google-calendar";
 import { sendConfirmationEmail, sendProviderBookingNotification } from "@/lib/mailer";
+import { formatTimeLabel } from "@/lib/schedule";
 import { siteConfig } from "@/config/site.config";
 import { db } from "@/db/client";
 import { providers, settings } from "@/db/schema";
@@ -18,6 +19,11 @@ function generalWorkingHours() {
 
 function resolveWorkingHours(calendarId: string) {
   return findProviderByCalendarId(calendarId)?.workingHours ?? generalWorkingHours();
+}
+
+function generalTimeFormat(): "24h" | "12h" {
+  const row = db.select({ timeFormat: settings.timeFormat }).from(settings).where(eq(settings.id, "main")).get();
+  return row?.timeFormat ?? "24h";
 }
 
 interface BookRequest {
@@ -98,13 +104,17 @@ export async function POST(req: NextRequest) {
 
   // Send confirmation + notification emails (non-blocking failure — the
   // booking is already on the calendar either way).
+  const timeFormat = generalTimeFormat();
+  const displayStartTime = formatTimeLabel(startTime, timeFormat);
+  const displayEndTime = formatTimeLabel(endTime, timeFormat);
+
   try {
     await sendConfirmationEmail({
       providerName: provider.name,
       serviceName,
       date,
-      startTime,
-      endTime,
+      startTime: displayStartTime,
+      endTime: displayEndTime,
       clientName: client.name,
       clientEmail: client.email,
       clientPhone: client.phone,
@@ -122,8 +132,8 @@ export async function POST(req: NextRequest) {
         providerName: provider.name,
         serviceName,
         date,
-        startTime,
-        endTime,
+        startTime: displayStartTime,
+        endTime: displayEndTime,
         clientName: client.name,
         clientEmail: client.email,
         clientPhone: client.phone,
