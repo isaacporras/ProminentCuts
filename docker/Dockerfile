@@ -34,17 +34,19 @@ ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
 # Usuario sin privilegios de root. Reusamos el usuario "node" (uid/gid 1000)
-# que la imagen base ya trae, en vez de crear uno nuevo: 1000 es el uid del
-# primer usuario en casi cualquier host Linux de un solo usuario, y esto
-# necesita coincidir con el dueño real del host para /app/data (ver abajo).
+# que la imagen base ya trae, en vez de crear uno nuevo.
+# su-exec: para bajar de root a "node" desde entrypoint.sh después de
+# arreglar permisos (ver más abajo) — es el equivalente liviano de gosu.
+RUN apk add --no-cache su-exec
 
 # Carpeta donde viven la DB SQLite y las fotos subidas desde /admin
-# (uploads/providers/ — ver src/lib/provider-photo.ts), montada como volumen
-# nombrado (ver docker-compose.yml). Se crea acá con el dueño correcto porque
-# Docker inicializa un volumen nombrado vacío copiando el contenido/permisos
-# que tenga esta misma ruta en la imagen; si no existiera, quedaría root:root
-# y "node" no podría escribir ahí (SQLITE_CANTOPEN / EACCES).
+# (uploads/providers/ — ver src/lib/provider-photo.ts). Se crea acá también
+# por si el mount queda vacío en el primer arranque, pero el dueño real se
+# fija en cada arranque desde entrypoint.sh — ver ese archivo para el porqué.
 RUN mkdir -p /app/data && chown node:node /app/data
+
+COPY --chown=node:node docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Archivos generados por `output: standalone`
 COPY --from=builder --chown=node:node /app/.next/standalone ./
@@ -63,7 +65,9 @@ COPY --from=builder --chown=node:node /app/public          ./public
 COPY --from=builder --chown=node:node /app/docker-dist/migrate.js ./migrate.js
 COPY --from=builder --chown=node:node /app/drizzle         ./drizzle
 
-USER node
 EXPOSE 3000
 
+# Arranca como root a propósito — entrypoint.sh arregla el dueño de
+# /app/data y recién ahí baja el proceso real a "node" con su-exec.
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["sh", "-c", "node migrate.js && node server.js"]
