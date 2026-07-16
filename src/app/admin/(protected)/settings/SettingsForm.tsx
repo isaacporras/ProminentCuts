@@ -56,6 +56,24 @@ export function SettingsForm({ settings }: SettingsFormProps) {
             );
           })}
         </div>
+
+        <div className="mt-5">
+          <label className={labelBase}>Intervalo mínimo entre citas (minutos)</label>
+          <input
+            type="number"
+            name="slotIntervalMinutes"
+            min={5}
+            step={5}
+            defaultValue={settings?.slotIntervalMinutes ?? ""}
+            placeholder="30"
+            className={`${inputBase} max-w-[10rem]`}
+          />
+          <p className="mt-1.5 text-xs text-text/45">
+            Cada cuánto se puede empezar una cita nueva (ej. cada 30 min). Dejalo vacío para
+            usar el valor por defecto (30). Cada persona del equipo puede tener su propio
+            intervalo desde su perfil.
+          </p>
+        </div>
       </fieldset>
 
       <div className={`${cardBase} flex flex-col gap-5 p-6`}>

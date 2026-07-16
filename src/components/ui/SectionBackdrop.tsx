@@ -27,6 +27,7 @@ export function SectionBackdrop({
           alt=""
           fill
           priority={priority}
+          sizes="100vw"
           className="object-cover"
         />
         <div
