@@ -22,14 +22,35 @@ export function SectionBackdrop({
   if (background.image) {
     return (
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <Image
-          src={background.image}
-          alt=""
-          fill
-          priority={priority}
-          sizes="100vw"
-          className="object-cover"
-        />
+        {background.imageMobile ? (
+          <>
+            <Image
+              src={background.imageMobile}
+              alt=""
+              fill
+              priority={priority}
+              sizes="100vw"
+              className="object-cover sm:hidden"
+            />
+            <Image
+              src={background.image}
+              alt=""
+              fill
+              priority={priority}
+              sizes="100vw"
+              className="hidden object-cover sm:block"
+            />
+          </>
+        ) : (
+          <Image
+            src={background.image}
+            alt=""
+            fill
+            priority={priority}
+            sizes="100vw"
+            className="object-cover"
+          />
+        )}
         <div
           className="absolute inset-0"
           style={{
