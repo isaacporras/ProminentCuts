@@ -39,6 +39,9 @@ export function ProviderForm({ provider, action }: ProviderFormProps) {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [hasCustomHours, setHasCustomHours] = useState(!!provider?.workingHours);
+  const [hasCustomSlotInterval, setHasCustomSlotInterval] = useState(
+    provider?.slotIntervalMinutes != null
+  );
 
   const socialsByPlatform = Object.fromEntries(
     (provider?.socials ?? []).map((s) => [s.platform, s.url])
@@ -205,6 +208,34 @@ export function ProviderForm({ provider, action }: ProviderFormProps) {
               );
             })}
             <p className="text-xs text-text/50">Deja un día vacío para marcarlo como cerrado.</p>
+          </div>
+        )}
+      </fieldset>
+
+      <fieldset className={`${cardBase} p-6`}>
+        <legend className={eyebrow}>Intervalo entre citas</legend>
+        <label className="mt-3 flex items-center gap-2 text-sm text-primary">
+          <input
+            type="checkbox"
+            name="customSlotInterval"
+            checked={hasCustomSlotInterval}
+            onChange={(e) => setHasCustomSlotInterval(e.target.checked)}
+          />
+          Intervalo personalizado (si no, usa el intervalo general del negocio)
+        </label>
+
+        {hasCustomSlotInterval && (
+          <div className="mt-4">
+            <label className={labelBase}>Minutos entre citas</label>
+            <input
+              type="number"
+              name="slotIntervalMinutes"
+              min={5}
+              step={5}
+              defaultValue={provider?.slotIntervalMinutes ?? ""}
+              placeholder="30"
+              className={`${inputBase} max-w-[10rem]`}
+            />
           </div>
         )}
       </fieldset>

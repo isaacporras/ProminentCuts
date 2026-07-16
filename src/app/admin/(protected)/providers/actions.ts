@@ -29,6 +29,16 @@ function customWorkingHoursFromForm(formData: FormData): WorkingHoursConfig | nu
   return parseWorkingHours(formData);
 }
 
+// Same gating pattern as customWorkingHoursFromForm: only stored when the
+// provider opts out of the business-wide default via the checkbox.
+function customSlotIntervalFromForm(formData: FormData): number | null {
+  if (formData.get("customSlotInterval") !== "on") return null;
+  const raw = String(formData.get("slotIntervalMinutes") ?? "").trim();
+  if (!raw) return null;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed) : null;
+}
+
 interface ProviderFormValues {
   name: string;
   role: string;
@@ -38,6 +48,7 @@ interface ProviderFormValues {
   googleCalendarId: string | null;
   socials: SocialLink[];
   workingHours: WorkingHoursConfig | null;
+  slotIntervalMinutes: number | null;
 }
 
 function valuesFromForm(formData: FormData): ProviderFormValues {
@@ -50,6 +61,7 @@ function valuesFromForm(formData: FormData): ProviderFormValues {
     googleCalendarId: String(formData.get("googleCalendarId") ?? "").trim() || null,
     socials: socialsFromForm(formData),
     workingHours: customWorkingHoursFromForm(formData),
+    slotIntervalMinutes: customSlotIntervalFromForm(formData),
   };
 }
 

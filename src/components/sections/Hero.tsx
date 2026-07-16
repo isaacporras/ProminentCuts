@@ -5,12 +5,22 @@ import { SectionBackdrop } from "@/components/ui/SectionBackdrop";
 export function Hero() {
   return (
     <section id="acerca" className="relative overflow-hidden bg-primary py-24 text-bg">
-      <SectionBackdrop
-        background={siteConfig.sectionBackgrounds?.hero}
-        defaultOverlayColor={siteConfig.theme.primary}
-        overlayOpacity={0.45}
-        priority
-      />
+      {/*
+        On mobile the text stack (tagline+headline+subheadline+description) makes
+        this section much taller than it is wide. Letting the backdrop stretch to
+        that full height (old behavior) forced object-cover to zoom a wide/landscape
+        photo way in to fill a narrow/tall box. Capping the image band to a saner
+        aspect ratio on mobile keeps the crop reasonable; bg-primary + the overlay's
+        matching color fill the rest of the section seamlessly below the image band.
+      */}
+      <div className="absolute inset-x-0 top-0 aspect-[4/3] overflow-hidden sm:inset-0 sm:aspect-auto">
+        <SectionBackdrop
+          background={siteConfig.sectionBackgrounds?.hero}
+          defaultOverlayColor={siteConfig.theme.primary}
+          overlayOpacity={0.45}
+          priority
+        />
+      </div>
       <div className="relative mx-auto max-w-4xl px-6 text-center">
         <p className="text-sm font-semibold uppercase tracking-wide text-secondary">
           {siteConfig.business.tagline}

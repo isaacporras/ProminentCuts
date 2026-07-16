@@ -102,6 +102,8 @@ export interface ProviderItem {
   googleCalendarId?: string | null;
   /** Provider-specific schedule. Falls back to appointments.workingHours if not set. */
   workingHours?: WorkingHoursConfig | null;
+  /** Provider-specific minimum interval between appointment start times, in minutes. Falls back to the business-wide setting if not set. */
+  slotIntervalMinutes?: number | null;
   socials?: SocialLink[] | null;
 }
 
