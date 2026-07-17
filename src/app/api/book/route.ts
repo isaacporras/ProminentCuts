@@ -108,9 +108,12 @@ export async function POST(req: NextRequest) {
   const displayStartTime = formatTimeLabel(startTime, timeFormat);
   const displayEndTime = formatTimeLabel(endTime, timeFormat);
 
+  const bookedProvider = findProviderByCalendarId(calendarId);
+
   try {
     await sendConfirmationEmail({
       providerName: provider.name,
+      providerPhone: bookedProvider?.phone,
       serviceName,
       date,
       startTime: displayStartTime,
@@ -124,7 +127,7 @@ export async function POST(req: NextRequest) {
     console.error("[book] client confirmation email failed (non-fatal)", err);
   }
 
-  const providerEmail = findProviderByCalendarId(calendarId)?.email;
+  const providerEmail = bookedProvider?.email;
   if (providerEmail) {
     try {
       await sendProviderBookingNotification({

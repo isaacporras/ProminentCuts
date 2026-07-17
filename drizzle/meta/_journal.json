@@ -36,6 +36,13 @@
       "when": 1784173971561,
       "tag": "0004_smart_thena",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1784245208762,
+      "tag": "0005_charming_red_shift",
+      "breakpoints": true
     }
   ]
 }
