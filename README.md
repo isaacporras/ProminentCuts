@@ -24,21 +24,13 @@ Plantilla reutilizable para negocios de servicios (salón, barbería, nutricioni
 
 3. **Contenido del sitio** — todo vive en `src/config/site.config.ts`: nombre, colores (`theme`), textos, navegación, horario, contacto, redes. Es el único archivo que hay que tocar para "convertir" el sitio.
 
-4. **Imágenes** en `public/brand/`:
-   - `backgrounds/hero.webp` — fondo del hero
+4. **Imágenes** en `public/brand/` — el hero se auto-descubre por nombre de archivo, no hace falta tocar `site.config.ts`:
+   - `backgrounds/hero.webp` — fondo del hero (desktop y, si no hay una versión móvil, también celular)
+   - `backgrounds/hero-mobile.webp` — opcional. Si el hero es una foto panorámica con detalles importantes cerca de los bordes (no solo centrados), preparar un recorte propio ~4:3 para pantallas angostas — `object-cover` en un celular siempre pierde los costados de una imagen ancha, no hay ajuste de CSS que lo arregle. Sin este archivo, se usa `hero.webp` en todos los tamaños.
    - `logo.webp` — favicon/logo (opcional, cae a `public/favicon.ico` si no existe)
    - `gallery/*.webp` — semilla inicial de la galería (se importa una sola vez a la base de datos, después se administra desde `/admin/gallery`)
 
-   Si el hero es una foto panorámica con detalles importantes cerca de los bordes (no solo centrados), preparar además un recorte propio para celular — `object-cover` en una pantalla angosta siempre pierde los costados de una imagen ancha, no hay ajuste de CSS que lo arregle. Configuralo en `site.config.ts`:
-   ```ts
-   sectionBackgrounds: {
-     hero: {
-       image: "/brand/backgrounds/hero.webp",        // desktop
-       imageMobile: "/brand/backgrounds/hero-mobile.webp", // recorte ~4:3 para <640px
-     },
-   },
-   ```
-   Sin `imageMobile`, se usa la misma imagen en todos los tamaños (comportamiento de siempre).
+   Si en algún momento necesitás una ruta o nombre distinto a la convención, `sectionBackgrounds.hero.image`/`imageMobile` en `site.config.ts` siguen funcionando — un valor explícito ahí siempre gana sobre el auto-descubrimiento.
 
 5. **`.env.local`** propio para probar en local (no se commitea):
    ```bash
