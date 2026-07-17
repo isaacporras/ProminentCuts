@@ -1,8 +1,11 @@
 import { siteConfig } from "@/config/site.config";
 import { CTAButton } from "@/components/ui/CTAButton";
 import { SectionBackdrop } from "@/components/ui/SectionBackdrop";
+import { resolveHeroBackground } from "@/lib/hero-background";
 
 export function Hero() {
+  const heroBackground = resolveHeroBackground(siteConfig.sectionBackgrounds?.hero);
+
   return (
     <section id="acerca" className="relative overflow-hidden bg-primary py-24 text-bg">
       {/*
@@ -18,7 +21,7 @@ export function Hero() {
       */}
       <div className="absolute inset-x-0 top-0 aspect-[4/3] overflow-hidden sm:inset-0 sm:aspect-auto">
         <SectionBackdrop
-          background={siteConfig.sectionBackgrounds?.hero}
+          background={heroBackground}
           defaultOverlayColor={siteConfig.theme.primary}
           overlayOpacity={0.45}
           priority
