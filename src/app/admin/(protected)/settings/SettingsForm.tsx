@@ -3,7 +3,9 @@
 import { useActionState } from "react";
 import type { settings } from "@/db/schema";
 import type { SocialPlatform } from "@/types/site-config";
+import { siteConfig } from "@/config/site.config";
 import { DAY_KEYS, DAY_LABELS } from "@/lib/schedule";
+import { PhoneInput } from "../../PhoneInput";
 import { updateSettings } from "./actions";
 import { inputBase, labelBase, buttonPrimary, cardBase, eyebrow } from "../../ui";
 
@@ -96,11 +98,10 @@ export function SettingsForm({ settings }: SettingsFormProps) {
 
         <div>
           <label className={labelBase}>Teléfono</label>
-          <input
+          <PhoneInput
             name="contactPhone"
-            defaultValue={settings?.contactPhone ?? undefined}
-            className={inputBase}
-            placeholder="+506 87931306"
+            defaultValue={settings?.contactPhone}
+            defaultCountryCode={siteConfig.appointments.defaultPhoneCountryCode}
           />
         </div>
 

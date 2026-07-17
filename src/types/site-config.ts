@@ -103,6 +103,8 @@ export interface ProviderItem {
   photoUrl?: string | null;
   /** Where booking notifications are sent. Not necessarily the same inbox as googleCalendarId. */
   email?: string | null;
+  /** Personal WhatsApp/phone shown to clients (e.g. confirmation email). Falls back to the business's contact phone if unset. */
+  phone?: string | null;
   googleCalendarId?: string | null;
   /** Provider-specific schedule. Falls back to appointments.workingHours if not set. */
   workingHours?: WorkingHoursConfig | null;

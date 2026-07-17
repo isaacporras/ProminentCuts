@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { siteConfig } from "@/config/site.config";
 import { db } from "@/db/client";
 import { locations, settings } from "@/db/schema";
+import { buildWhatsAppLink } from "@/lib/utils";
 
 function getTransporter() {
   return nodemailer.createTransport({
@@ -18,6 +19,9 @@ function getTransporter() {
 
 interface BookingEmailData {
   providerName: string;
+  // Specific provider's personal number, if they set one — takes priority
+  // over the business's general contact phone.
+  providerPhone?: string | null;
   serviceName: string;
   date: string;       // "2026-07-15"
   startTime: string;  // "10:00"
@@ -46,7 +50,7 @@ export async function sendConfirmationEmail(data: BookingEmailData) {
   const primaryLocation = db.select().from(locations).orderBy(locations.sortOrder).limit(1).get();
   const address = primaryLocation?.address ?? siteConfig.location?.address ?? "";
   const settingsRow = db.select().from(settings).where(eq(settings.id, "main")).get();
-  const phone = settingsRow?.contactPhone ?? siteConfig.contact.phone;
+  const phone = data.providerPhone ?? settingsRow?.contactPhone ?? siteConfig.contact.phone;
 
   const html = `
     <div style="font-family:Arial,sans-serif;max-width:540px;margin:0 auto;color:${siteConfig.theme.text}">
@@ -82,7 +86,7 @@ export async function sendConfirmationEmail(data: BookingEmailData) {
         ${data.comments ? `<p style="margin:24px 0 0;padding:16px;background:#f9f4ec;border-radius:8px;font-style:italic">"${data.comments}"</p>` : ""}
         <p style="margin:32px 0 0;font-size:13px;color:#888">
           Si necesitas cambiar o cancelar tu cita, contáctanos al
-          <a href="tel:${phone}" style="color:${siteConfig.theme.secondary}">${phone}</a>.
+          <a href="${buildWhatsAppLink(phone, "Hola, tengo una consulta sobre mi cita.")}" style="color:${siteConfig.theme.secondary}">${phone}</a>.
         </p>
       </div>
     </div>
