@@ -3,7 +3,9 @@
 import { useState } from "react";
 import Image from "next/image";
 import type { ProviderItem, SocialPlatform } from "@/types/site-config";
+import { siteConfig } from "@/config/site.config";
 import { DAY_KEYS, DAY_LABELS } from "@/lib/schedule";
+import { PhoneInput } from "../../PhoneInput";
 import {
   inputBase,
   labelBase,
@@ -21,12 +23,13 @@ const ALLOWED_PHOTO_TYPES: Record<string, string> = {
   "image/webp": "WEBP",
 };
 
+// WhatsApp isn't here — providers have a dedicated phone field instead (see
+// the "Teléfono" input below), used as their WhatsApp/contact number.
 const SOCIAL_FIELDS: { platform: SocialPlatform; label: string }[] = [
   { platform: "instagram", label: "Instagram" },
   { platform: "tiktok", label: "TikTok" },
   { platform: "facebook", label: "Facebook" },
   { platform: "x", label: "X" },
-  { platform: "whatsapp", label: "WhatsApp" },
 ];
 
 interface ProviderFormProps {
@@ -137,6 +140,19 @@ export function ProviderForm({ provider, action }: ProviderFormProps) {
           <p className="mt-1.5 text-xs text-text/45">
             Acá le llega el aviso de cada cita nueva que le agendan. No tiene que
             ser el mismo correo del ID de Google Calendar de abajo.
+          </p>
+        </div>
+
+        <div>
+          <label className={labelBase}>Teléfono</label>
+          <PhoneInput
+            name="phone"
+            defaultValue={provider?.phone}
+            defaultCountryCode={siteConfig.appointments.defaultPhoneCountryCode}
+          />
+          <p className="mt-1.5 text-xs text-text/45">
+            Se muestra como enlace de WhatsApp en el correo de confirmación de citas. Si lo
+            dejás vacío, se usa el teléfono general del negocio.
           </p>
         </div>
 

@@ -15,6 +15,10 @@ export const providers = sqliteTable("providers", {
   bio: text("bio").notNull(),
   photoUrl: text("photo_url"),
   email: text("email"),
+  // Personal WhatsApp/phone shown to clients (e.g. in the confirmation
+  // email) for the specific person handling their appointment. Falls back
+  // to the business's contactPhone (settings) when unset.
+  phone: text("phone"),
   googleCalendarId: text("google_calendar_id"),
   socials: text("socials", { mode: "json" }).$type<SocialLink[]>(),
   // Provider-specific schedule override. Null falls back to

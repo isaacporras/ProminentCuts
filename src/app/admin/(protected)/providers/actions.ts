@@ -11,7 +11,8 @@ import { workingHoursFromForm as parseWorkingHours } from "@/lib/schedule";
 import { MAX_PROVIDERS } from "@/lib/limits";
 import type { SocialLink, SocialPlatform, WorkingHoursConfig } from "@/types/site-config";
 
-const SOCIAL_PLATFORMS: SocialPlatform[] = ["instagram", "tiktok", "facebook", "x", "whatsapp"];
+// No "whatsapp" here — providers use the dedicated `phone` field for that.
+const SOCIAL_PLATFORMS: SocialPlatform[] = ["instagram", "tiktok", "facebook", "x"];
 
 function socialsFromForm(formData: FormData): SocialLink[] {
   const socials: SocialLink[] = [];
@@ -45,6 +46,7 @@ interface ProviderFormValues {
   bio: string;
   photoUrl: string | null;
   email: string | null;
+  phone: string | null;
   googleCalendarId: string | null;
   socials: SocialLink[];
   workingHours: WorkingHoursConfig | null;
@@ -58,6 +60,7 @@ function valuesFromForm(formData: FormData): ProviderFormValues {
     bio: String(formData.get("bio") ?? "").trim(),
     photoUrl: String(formData.get("photoUrl") ?? "").trim() || null,
     email: String(formData.get("email") ?? "").trim() || null,
+    phone: String(formData.get("phone") ?? "").trim() || null,
     googleCalendarId: String(formData.get("googleCalendarId") ?? "").trim() || null,
     socials: socialsFromForm(formData),
     workingHours: customWorkingHoursFromForm(formData),
